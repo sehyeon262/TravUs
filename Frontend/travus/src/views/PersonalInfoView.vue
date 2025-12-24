@@ -129,14 +129,24 @@
 </template>
 
 <script setup>
-import { computed, reactive, ref, watch } from 'vue'
+import { computed, reactive, ref, watch, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import NavigationBar from '@/components/common/NavigationBar.vue'
 import { useAuthStore } from '@/stores/auth'
 import { useTTS } from '@/composables/useTTS'
 
 const authStore = useAuthStore()
+const router = useRouter()
 const user = computed(() => authStore.currentUser)
 const { isTTSEnabled, speak, toggleTTS } = useTTS()
+
+// 로그인 확인
+onMounted(() => {
+  if (!authStore.isLoggedIn) {
+    alert('로그인이 필요한 서비스입니다.')
+    router.push('/login')
+  }
+})
 
 const form = reactive({
   name: '',

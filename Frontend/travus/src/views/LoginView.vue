@@ -48,24 +48,16 @@
           {{ errorMessage }}
         </p>
 
-        
+
         <div class="login-links">
           <button
             class="text-link"
             type="button"
+            @click="showPasswordResetModal = true"
             @focus="handleFocus"
             aria-label="비밀번호 찾기"
           >
             비밀번호 찾기
-          </button>
-          <span class="link-separator">|</span>
-          <button
-            class="text-link"
-            type="button"
-            @focus="handleFocus"
-            aria-label="아이디 찾기"
-          >
-            아이디 찾기
           </button>
           <span class="link-separator">|</span>
           <router-link class="text-link" to="/signup" @focus="handleFocus" aria-label="회원가입">
@@ -73,6 +65,39 @@
           </router-link>
         </div>
       </form>
+    </div>
+
+    <!-- 비밀번호 찾기 모달 -->
+    <div v-if="showPasswordResetModal" class="modal-overlay" @click="closePasswordResetModal">
+      <div class="modal-content" @click.stop>
+        <button class="modal-close" @click="closePasswordResetModal" aria-label="닫기">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path d="M18 6L6 18M6 6l12 12" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </button>
+
+        <h2 class="modal-title">비밀번호 찾기</h2>
+        <p class="modal-description">가입 시 등록한 이메일 주소를 입력해주세요.</p>
+
+        <form @submit.prevent="handlePasswordReset" class="reset-form">
+          <input
+            class="login-input"
+            type="email"
+            placeholder="이메일 주소"
+            v-model="resetEmail"
+            required
+            aria-label="이메일 주소"
+          />
+
+          <p v-if="resetMessage" :class="['reset-message', resetSuccess ? 'success' : 'error']">
+            {{ resetMessage }}
+          </p>
+
+          <button type="submit" class="reset-submit" :disabled="isResetting">
+            {{ isResetting ? '전송 중...' : '비밀번호 재설정 링크 전송' }}
+          </button>
+        </form>
+      </div>
     </div>
   </div>
 </template>
@@ -98,9 +123,56 @@ const form = reactive({
 
 const errorMessage = ref('')
 
+// 비밀번호 찾기 모달 관련
+const showPasswordResetModal = ref(false)
+const resetEmail = ref('')
+const resetMessage = ref('')
+const resetSuccess = ref(false)
+const isResetting = ref(false)
+
 const toggleTTS = () => {
   ttsToggle()
   speak(isTTSEnabled.value ? 'TTS가 켜졌습니다' : 'TTS가 꺼졌습니다')
+}
+
+const closePasswordResetModal = () => {
+  showPasswordResetModal.value = false
+  resetEmail.value = ''
+  resetMessage.value = ''
+  resetSuccess.value = false
+}
+
+const handlePasswordReset = async () => {
+  resetMessage.value = ''
+  isResetting.value = true
+
+  try {
+    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api'
+    const response = await axios.post(`${API_BASE_URL}/auth/password-reset/`, {
+      email: resetEmail.value
+    })
+
+    resetSuccess.value = true
+
+    // 임시 비밀번호가 있으면 표시 (개발 환경용)
+    if (response.data.temp_password) {
+      resetMessage.value = `임시 비밀번호: ${response.data.temp_password}\n(이 비밀번호로 로그인 후 변경해주세요)`
+    } else {
+      resetMessage.value = '비밀번호 재설정 링크가 이메일로 전송되었습니다.'
+    }
+
+    setTimeout(() => {
+      closePasswordResetModal()
+    }, 5000)
+  } catch (error) {
+    console.error('비밀번호 재설정 실패:', error)
+    resetSuccess.value = false
+    resetMessage.value = error.response?.data?.error ||
+                        error.response?.data?.detail ||
+                        '이메일 전송에 실패했습니다. 다시 시도해주세요.'
+  } finally {
+    isResetting.value = false
+  }
 }
 
 const handleFocus = (payload) => {
@@ -332,9 +404,116 @@ const handleSubmit = async () => {
   color: #d1d5db;
 }
 
+/* 비밀번호 찾기 모달 */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 1rem;
+}
+
+.modal-content {
+  background: white;
+  border-radius: 16px;
+  padding: 2.5rem;
+  max-width: 500px;
+  width: 100%;
+  position: relative;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+}
+
+.modal-close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.5rem;
+  color: #6b7280;
+  transition: color 0.2s;
+}
+
+.modal-close:hover {
+  color: #111827;
+}
+
+.modal-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #111827;
+  margin: 0 0 0.5rem 0;
+}
+
+.modal-description {
+  font-size: 1rem;
+  color: #6b7280;
+  margin: 0 0 1.5rem 0;
+}
+
+.reset-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.reset-message {
+  margin: 0;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  font-size: 0.95rem;
+}
+
+.reset-message.success {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.reset-message.error {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.reset-submit {
+  width: 100%;
+  padding: 1.2rem 1.5rem;
+  border: none;
+  border-radius: 12px;
+  background: #a08077;
+  color: white;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.reset-submit:hover:not(:disabled) {
+  background: #8a6e65;
+}
+
+.reset-submit:disabled {
+  background: #d1d5db;
+  cursor: not-allowed;
+}
+
 @media (max-width: 480px) {
   .login-card {
     padding: 2.8rem 2.2rem 2.4rem;
+  }
+
+  .modal-content {
+    padding: 2rem;
+  }
+
+  .modal-title {
+    font-size: 1.5rem;
   }
 }
 </style>

@@ -168,3 +168,42 @@ def user_info(request):
     """
     serializer = UserSerializer(request.user)
     return Response(serializer.data)
+
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def password_reset_request(request):
+    """
+    비밀번호 재설정 요청 API
+    - 이메일로 비밀번호 재설정 링크 전송 (실제 이메일 전송은 구현하지 않음)
+    """
+    email = request.data.get('email', '').strip()
+
+    if not email:
+        return Response({
+            'error': '이메일을 입력해주세요.'
+        }, status=status.HTTP_400_BAD_REQUEST)
+
+    # 이메일로 사용자 검색
+    try:
+        user = User.objects.get(email=email)
+
+        # 실제 프로덕션 환경에서는 여기서 이메일 전송
+        # 지금은 임시 비밀번호를 생성하고 직접 변경
+        import random
+        import string
+        temp_password = ''.join(random.choices(string.ascii_letters + string.digits, k=8))
+
+        user.set_password(temp_password)
+        user.save()
+
+        # 실제로는 이메일로 전송하지만, 개발 환경에서는 응답으로 반환
+        return Response({
+            'message': '임시 비밀번호가 이메일로 전송되었습니다.',
+            'temp_password': temp_password  # 실제 프로덕션에서는 삭제
+        })
+    except User.DoesNotExist:
+        # 보안상 이메일이 존재하지 않아도 성공 메시지 반환
+        return Response({
+            'message': '해당 이메일로 비밀번호 재설정 링크가 전송되었습니다.'
+        })

@@ -1,5 +1,15 @@
 <template>
   <div class="course-start">
+    <!-- 커스텀 알림 모달 -->
+    <CustomAlert
+      v-model="showAlert"
+      :title="alertConfig.title"
+      :message="alertConfig.message"
+      :type="alertConfig.type"
+      :confirmText="alertConfig.confirmText"
+      @confirm="handleAlertConfirm"
+    />
+
     <!-- 히어로 섹션 -->
     <div class="hero-section">
       <div class="hero-content">
@@ -134,6 +144,7 @@ import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import api from '@/services/api'
 import { useAuthStore } from '@/stores/auth'
+import CustomAlert from '@/components/common/CustomAlert.vue'
 
 const emit = defineEmits(['next', 'select-course'])
 
@@ -144,6 +155,16 @@ const selectedCategory = ref('best30')
 const selectedRegion = ref('1')
 const courses = ref([])
 const loading = ref(false)
+
+// 커스텀 알림 상태
+const showAlert = ref(false)
+const alertConfig = ref({
+  title: '알림',
+  message: '',
+  type: 'info',
+  confirmText: '확인'
+})
+const alertCallback = ref(null)
 
 const categories = [
   { id: 'my-course', name: '나의 여행코스' },
@@ -171,11 +192,38 @@ const regions = [
   { code: '39', name: '제주' }
 ]
 
+// 커스텀 알림 표시 함수
+const showCustomAlert = (config, callback = null) => {
+  alertConfig.value = {
+    title: config.title || '알림',
+    message: config.message,
+    type: config.type || 'info',
+    confirmText: config.confirmText || '확인'
+  }
+  alertCallback.value = callback
+  showAlert.value = true
+}
+
+// 알림 확인 버튼 클릭
+const handleAlertConfirm = () => {
+  if (alertCallback.value) {
+    alertCallback.value()
+    alertCallback.value = null
+  }
+}
+
 // 코스 만들기 버튼 클릭
 const handleCreateCourse = () => {
   if (!authStore.isLoggedIn) {
-    alert('코스 만들기는 로그인이 필요합니다.')
-    router.push('/login')
+    showCustomAlert(
+      {
+        title: '로그인 필요',
+        message: '코스 만들기는 로그인이 필요합니다.',
+        type: 'info',
+        confirmText: '로그인하기'
+      },
+      () => router.push('/login')
+    )
     return
   }
   emit('next')
@@ -184,8 +232,15 @@ const handleCreateCourse = () => {
 // 카테고리 변경 시 코스 로드
 const selectCategory = async (categoryId) => {
   if (categoryId === 'my-course' && !authStore.isLoggedIn) {
-    alert('로그인이 필요합니다.')
-    router.push('/login')
+    showCustomAlert(
+      {
+        title: '로그인 필요',
+        message: '나의 여행코스를 보려면 로그인이 필요합니다.',
+        type: 'info',
+        confirmText: '로그인하기'
+      },
+      () => router.push('/login')
+    )
     return
   }
 
@@ -220,11 +275,25 @@ const loadCourses = async () => {
     console.error('코스 불러오기 실패:', error)
     if (error.response?.status === 401 && selectedCategory.value === 'my-course') {
       // 나의 여행코스만 401 에러 시 로그인 페이지로 이동
-      alert('로그인이 필요합니다.')
-      router.push('/login')
+      showCustomAlert(
+        {
+          title: '로그인 필요',
+          message: '로그인이 필요합니다.',
+          type: 'warning',
+          confirmText: '로그인하기'
+        },
+        () => router.push('/login')
+      )
     } else if (error.response?.status !== 401) {
       // 401이 아닌 다른 에러만 알림
-      alert('코스를 불러오는데 실패했습니다.')
+      showCustomAlert(
+        {
+          title: '오류',
+          message: '코스를 불러오는데 실패했습니다.',
+          type: 'error',
+          confirmText: '확인'
+        }
+      )
     }
     // 다른 탭에서 401이 나면 그냥 빈 배열로 처리
   } finally {

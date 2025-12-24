@@ -11,7 +11,9 @@
       "Bash(wc:*)",
       "Bash(npm run dev:*)",
       "Bash(python add_course_views.py:*)",
-      "Bash(curl:*)"
+      "Bash(curl:*)",
+      "Bash(./venv/Scripts/python.exe:*)",
+      "Bash(python:*)"
     ]
   }
 }

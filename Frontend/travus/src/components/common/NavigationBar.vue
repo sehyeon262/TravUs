@@ -153,9 +153,15 @@ const closeMenuImmediate = () => {
 }
 
 const goLogin = () => {
-  if (authStore.isLoggedIn) {
+  // 실제 토큰이 있는지 확인
+  const token = localStorage.getItem('access_token')
+  if (token && authStore.isLoggedIn) {
     router.push('/mypage')
     return
+  }
+  // 토큰이 없으면 로그아웃 처리
+  if (!token && authStore.isLoggedIn) {
+    authStore.logout()
   }
   router.push('/login')
 }
@@ -353,7 +359,7 @@ const handleFocus = (event) => {
 
 .dropdown-item.router-link-active {
   background: #f3f4f6;
-  color: #667eea;
+  color: #374151;
 }
 
 .navbar-controls {

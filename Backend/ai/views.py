@@ -136,3 +136,38 @@ def transcribe_audio(request):
                 os.remove(tmp_path)
             except OSError:
                 pass
+
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+@authentication_classes([])
+def generate_spot_description(request):
+    """
+    여행지 이름과 주소를 받아 AI로 4줄 정도의 설명을 생성합니다.
+    """
+    spot_name = request.data.get('spot_name')
+    address = request.data.get('address', '')
+
+    if not spot_name:
+        return Response({"error": "spot_name is required."}, status=400)
+
+    try:
+        completion = chat_client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[
+                {
+                    "role": "system",
+                    "content": "너는 여행지 정보를 제공하는 전문가야. 주어진 여행지에 대해 간결하고 매력적인 설명을 한국어로 4줄 이내로 작성해줘. 여행지의 특징, 볼거리, 분위기를 포함해서 설명해줘."
+                },
+                {
+                    "role": "user",
+                    "content": f"여행지: {spot_name}\n주소: {address}\n\n이 여행지에 대해 4줄 정도로 설명해줘."
+                }
+            ],
+            temperature=0.7,
+            max_tokens=300
+        )
+        description = completion.choices[0].message.content if completion.choices else ""
+        return Response({"description": description})
+    except Exception as e:
+        return handle_ai_error(e, "Description generation failed.")

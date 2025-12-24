@@ -11,18 +11,33 @@ const loadState = () => {
     const raw = window.localStorage.getItem(STORAGE_KEY)
     const token = window.localStorage.getItem('access_token')
 
+    // 토큰이 없으면 무조건 로그아웃 상태
+    if (!token) {
+      // 잘못된 데이터가 남아있을 수 있으니 정리
+      window.localStorage.removeItem(STORAGE_KEY)
+      return { users: [], currentUser: null, isLoggedIn: false, token: null }
+    }
+
     if (!raw) {
-      return { users: [], currentUser: null, isLoggedIn: !!token, token }
+      return { users: [], currentUser: null, isLoggedIn: false, token: null }
     }
 
     const parsed = JSON.parse(raw)
+
+    // 토큰과 저장된 로그인 상태가 모두 있어야 로그인으로 인정
+    const isLoggedIn = !!token && Boolean(parsed.isLoggedIn) && parsed.currentUser
+
     return {
       users: Array.isArray(parsed.users) ? parsed.users : [],
-      currentUser: parsed.currentUser || null,
-      isLoggedIn: Boolean(parsed.isLoggedIn) || !!token,
-      token: token || parsed.token || null
+      currentUser: isLoggedIn ? parsed.currentUser : null,
+      isLoggedIn: isLoggedIn,
+      token: token || null
     }
   } catch {
+    // 에러 발생 시 localStorage 정리
+    window.localStorage.removeItem(STORAGE_KEY)
+    window.localStorage.removeItem('access_token')
+    window.localStorage.removeItem('refresh_token')
     return { users: [], currentUser: null, isLoggedIn: false, token: null }
   }
 }

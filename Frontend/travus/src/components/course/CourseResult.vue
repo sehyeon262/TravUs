@@ -127,18 +127,20 @@
                 <p>아직 댓글이 없습니다. 첫 댓글을 남겨보세요!</p>
               </div>
 
-              <div v-for="comment in comments" :key="comment.id" class="comment-item">
-                <div class="comment-header">
-                  <span class="comment-author">{{ comment.username }}</span>
-                  <span class="comment-date">{{ formatDate(comment.created_at) }}</span>
+              <template v-for="comment in comments" :key="comment?.id || Math.random()">
+                <div v-if="comment" class="comment-item">
+                  <div class="comment-header">
+                    <span class="comment-author">{{ comment.username || '익명' }}</span>
+                    <span class="comment-date">{{ comment.created_at ? formatDate(comment.created_at) : '' }}</span>
+                  </div>
+                  <div class="comment-content">{{ comment.content || '' }}</div>
+                  <div class="comment-actions">
+                    <button class="btn-comment-action" v-if="isMyComment(comment)" @click="deleteComment(comment.id)">
+                      <i class="fa fa-trash"></i> 삭제
+                    </button>
+                  </div>
                 </div>
-                <div class="comment-content">{{ comment.content }}</div>
-                <div class="comment-actions">
-                  <button class="btn-comment-action" v-if="isMyComment(comment)" @click="deleteComment(comment.id)">
-                    <i class="fa fa-trash"></i> 삭제
-                  </button>
-                </div>
-              </div>
+              </template>
             </div>
           </div>
         </div>
@@ -625,12 +627,30 @@ const goToSpotDetail = (place) => {
 const loadComments = async () => {
   try {
     // savedCourseId 사용 (자동 저장된 코스 ID)
-    if (!savedCourseId.value) return
+    if (!savedCourseId.value) {
+      console.log('⚠️ savedCourseId가 없어서 댓글을 불러올 수 없습니다.')
+      return
+    }
 
+    console.log('📝 댓글 불러오기 시도:', savedCourseId.value)
     const response = await api.getCourseComments(savedCourseId.value)
-    comments.value = response.data
+    console.log('✅ 댓글 응답:', response.data)
+
+    // 응답이 배열인지 확인
+    if (Array.isArray(response.data)) {
+      comments.value = response.data
+    } else if (response.data.results && Array.isArray(response.data.results)) {
+      // 페이지네이션된 응답인 경우
+      comments.value = response.data.results
+    } else {
+      console.warn('⚠️ 예상치 못한 댓글 응답 형식:', response.data)
+      comments.value = []
+    }
+
+    console.log(`✅ ${comments.value.length}개 댓글 로드 완료`)
   } catch (error) {
-    console.error('댓글 로드 실패:', error)
+    console.error('❌ 댓글 로드 실패:', error)
+    comments.value = []
   }
 }
 
@@ -673,7 +693,7 @@ const deleteComment = async (commentId) => {
 }
 
 const isMyComment = (comment) => {
-  return currentUser.value && comment.user === currentUser.value.id
+  return currentUser.value && comment && comment.user === currentUser.value.id
 }
 
 const formatDate = (dateString) => {
@@ -826,13 +846,22 @@ const loadAIGeneratedData = () => {
           // spot.spot 또는 spot 자체가 여행지 데이터
           const spotData = spot.spot || spot
 
+          // 디버깅: 실제 spotData 구조 확인
+          console.log('🔍 spotData 구조:', spotData)
+
+          // 좌표 필드명 확인 (latitude/longitude 또는 mapy/mapx)
+          const lat = spotData.latitude || spotData.mapy
+          const lng = spotData.longitude || spotData.mapx
+
+          console.log(`📍 ${spotData.name}: lat=${lat}, lng=${lng}`)
+
           return {
             id: spotData.id, // TravelSpot의 실제 DB ID
             content_type_id: spotData.content_type_id, // 콘텐츠 타입 ID 추가
             name: spotData.name,
             address: spotData.address,
-            latitude: parseFloat(spotData.latitude),
-            longitude: parseFloat(spotData.longitude),
+            latitude: parseFloat(lat),
+            longitude: parseFloat(lng),
             image_url: spotData.image_url,
             category: getCategoryName(spotData.content_type_id),
             type: spot.type,
@@ -930,11 +959,11 @@ onMounted(async () => {
       console.log('사용자 정보 없음 (로그인 필요)')
     }
 
-    // 댓글 로드
-    await loadComments()
-
     // 자동 저장 (코스 생성 시 자동으로 저장)
     await autoSaveCourse()
+
+    // 댓글 로드 (autoSaveCourse 이후에 실행해야 savedCourseId가 설정됨)
+    await loadComments()
 
   } catch (error) {
     console.error('❌ 초기화 실패:', error)

@@ -511,7 +511,9 @@ const loadDestinations = async () => {
         firstimage: item.image_url,
         firstimage2: item.thumbnail_url,
         overview: item.description,
-        tel: item.tel
+        tel: item.tel,
+        rating: item.rating,
+        review_count: item.review_count
       }))
 
       destinations.value = results
@@ -653,15 +655,15 @@ onMounted(() => {
 
 /* 배경 이미지 */
 .header-beach {
-  background-image: url('@/assets/beach.jpg');
+  background-image: url('@/assets/travel.png');
 }
 
 .header-room {
-  background-image: url('@/assets/room.jpg');
+  background-image: url('@/assets/bed.png');
 }
 
 .header-restaurant {
-  background-image: url('@/assets/restaurant.jpg');
+  background-image: url('@/assets/food.png');
 }
 
 .header-default {
@@ -823,7 +825,7 @@ onMounted(() => {
   gap: 1rem;
   padding: 2rem 1.5rem;
   background: white;
-  border: 3px solid #e5e7eb;
+  border: 3px solid #d8d8d8;
   border-radius: 7%;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -832,16 +834,18 @@ onMounted(() => {
 }
 
 .accessibility-type-btn:hover {
-  border-color: #9ca3af;
-  background: #f9fafb;
+  border-color: #d8d8d8;
+  background: #d8d8d8;
+  color: white;
   transform: translateY(-4px);
   box-shadow: 0 8px 16px rgba(156, 163, 175, 0.15);
 }
 
 .accessibility-type-btn.active {
-  border-color: #9ca3af;
-  background: #f9fafb;
+  border-color: #d8d8d8;
+  background: #d8d8d8;
   position: relative;
+  color: white;
 }
 
 .accessibility-type-btn.active::after {
@@ -850,8 +854,8 @@ onMounted(() => {
   bottom: -3px;
   left: 50%;
   transform: translateX(-50%);
-  width: 80%;
-  height: 6px;
+  width: 92%;
+  height: 4px;
   background: #9ca3af;
   border-radius: 3px 3px 0 0;
 }
@@ -874,7 +878,7 @@ onMounted(() => {
 }
 
 .accessibility-type-btn.active .icon-wrapper {
-  background: #d1d5db;
+  background: #fdfdfd;
 }
 
 .accessibility-type-btn span {

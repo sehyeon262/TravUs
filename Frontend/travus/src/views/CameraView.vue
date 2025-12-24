@@ -7,6 +7,17 @@
       @focus="handleFocus"
     />
 
+    <!-- 배경 이미지 -->
+    <div class="background-wrapper"></div>
+
+    <!-- 구름 애니메이션 -->
+    <div class="clouds-container">
+      <img src="@/assets/img_cloud1.png" alt="cloud" class="cloud cloud1" />
+      <img src="@/assets/img_cloud2.png" alt="cloud" class="cloud cloud2" />
+      <img src="@/assets/img_cloud4.png" alt="cloud" class="cloud cloud4" />
+      <img src="@/assets/img_cloud5.png" alt="cloud" class="cloud cloud5" />
+    </div>
+
     <main class="camera-main">
       <section class="camera-hero">
         <div class="hero-text">
@@ -24,26 +35,7 @@
           </p>
         </div>
         <div class="hero-visual">
-          <div class="floating-card">
-            <div class="card-header">
-              <span>Travus AI Camera</span>
-              <span class="dot live"></span>
-            </div>
-            <div class="card-body">
-              <p>실시간 분석</p>
-              <h3>GPT가 여행지를 설명합니다</h3>
-            </div>
-          </div>
-          <div class="floating-card secondary">
-            <div class="card-header">
-              <span>대화 모드</span>
-              <span class="dot idle"></span>
-            </div>
-            <div class="card-body">
-              <p>궁금한 점을 물어보세요</p>
-              <h3>여행지 정보 · 접근성 · 추천 코스</h3>
-            </div>
-          </div>
+          <img src="@/assets/camera.png" alt="AI Camera" class="camera-hero-image" />
         </div>
       </section>
 
@@ -428,34 +420,114 @@ onBeforeUnmount(() => {
 <style scoped>
 .camera-page {
   min-height: 100vh;
-  background: linear-gradient(135deg, #c8e9ff, #f6edff);
+  background: linear-gradient(to bottom, #90B5EC 0%, #AAC0F2 50%, #C2CCF8 100%);
   color: #0f172a;
+  position: relative;
+  overflow-x: hidden;
+}
+
+.background-wrapper {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url('@/assets/course_background.png');
+  background-repeat: no-repeat;
+  background-position: bottom right;
+  background-size: auto 100%;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.clouds-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.cloud {
+  position: absolute;
+  animation: cloudFloat 3s ease-out forwards;
+}
+
+@keyframes cloudFloat {
+  0% {
+    opacity: 0;
+    transform: translateY(-50px);
+  }
+  100% {
+    opacity: 0.8;
+    transform: translateY(0);
+  }
+}
+
+.cloud1 {
+  top: 10%;
+  left: 5%;
+  width: 150px;
+  animation-delay: 0s;
+}
+
+.cloud2 {
+  top: 15%;
+  right: 10%;
+  width: 200px;
+  animation-delay: 0.3s;
+}
+
+.cloud4 {
+  bottom: 25%;
+  left: 10%;
+  width: 180px;
+  animation-delay: 0.6s;
+}
+
+.cloud5 {
+  bottom: 30%;
+  right: 5%;
+  width: 160px;
+  animation-delay: 0.9s;
 }
 
 .camera-main {
   max-width: 1280px;
   margin: 0 auto;
   padding: 8rem 1.5rem 3rem;
+  position: relative;
+  z-index: 1;
 }
 
 .camera-hero {
   display: grid;
   grid-template-columns: 1.2fr 0.8fr;
-  gap: 2rem;
+  gap: 1rem;
   align-items: center;
-  margin-bottom: 2.5rem;
+  margin-bottom: 1rem;
+  position: relative;
+}
+
+.hero-text {
+  position: relative;
+  z-index: 1;
 }
 
 .hero-text h1 {
   font-size: 2.6rem;
   margin: 0.75rem 0;
   line-height: 1.2;
-  color: #0f172a;
+  color: #1e293b;
+  font-weight: 800;
 }
 
 .hero-text .subtitle {
-  color: #344054;
+  color: #334155;
   line-height: 1.6;
+  font-weight: 500;
 }
 
 .hero-actions {
@@ -482,75 +554,37 @@ onBeforeUnmount(() => {
 }
 
 .hero-visual {
-  position: relative;
-  min-height: 260px;
-}
-
-.floating-card {
-  background: radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.12), transparent 55%), #0f172a;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 16px;
-  padding: 1rem 1.25rem;
-  box-shadow: 0 20px 40px rgba(15, 23, 42, 0.35);
-  position: absolute;
-  width: 90%;
-  left: 5%;
-  animation: float 6s ease-in-out infinite;
-  color: #e5e7eb;
-}
-
-.floating-card.secondary {
-  top: 140px;
-  right: 0;
-  left: auto;
-  width: 88%;
-  animation-delay: 1.5s;
-  background: radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.1), transparent 55%), #111827;
-}
-
-.card-header {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  font-size: 0.95rem;
-  color: #cbd5e1;
+  justify-content: center;
+  min-height: 260px;
+  position: relative;
+  z-index: 1;
 }
 
-.card-body h3 {
-  margin: 0.25rem 0 0;
-  font-size: 1.25rem;
-}
-
-.dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 999px;
-  display: inline-block;
-}
-
-.dot.live {
-  background: #22c55e;
-  box-shadow: 0 0 10px rgba(34, 197, 94, 0.8);
-}
-
-.dot.idle {
-  background: #fbbf24;
-  box-shadow: 0 0 8px rgba(251, 191, 36, 0.6);
+.camera-hero-image {
+  width: 100%;
+  max-width: 280px;
+  height: auto;
+  object-fit: contain;
 }
 
 .camera-body {
   display: grid;
   grid-template-columns: 1.1fr 0.9fr;
   gap: 1.5rem;
+  position: relative;
 }
 
 .camera-panel,
 .insight-panel {
-  background: #fdfefe;
+  background: rgba(255, 255, 255, 0.95);
   border: 1px solid rgba(15, 23, 42, 0.06);
   border-radius: 18px;
   padding: 1.5rem;
   box-shadow: 0 20px 40px rgba(15, 23, 42, 0.12);
+  position: relative;
+  z-index: 1;
 }
 
 .viewer {
@@ -710,18 +744,24 @@ onBeforeUnmount(() => {
 .primary-btn,
 .ghost-btn {
   border: none;
-  border-radius: 12px;
-  padding: 0.8rem 1.2rem;
-  font-weight: 700;
+  border-radius: 8px;
+  padding: 0.875rem 1.5rem;
+  font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
   font-size: 1rem;
 }
 
 .primary-btn {
-  background: linear-gradient(135deg, #52b9ff, #88e0ff);
-  color: #0b1224;
-  box-shadow: 0 10px 25px rgba(82, 185, 255, 0.35);
+  background: #111827;
+  color: white;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.primary-btn:hover:not(:disabled) {
+  background: #1f2937;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
 }
 
 .primary-btn:disabled {
@@ -731,19 +771,24 @@ onBeforeUnmount(() => {
 }
 
 .ghost-btn {
-  background: #f5f7fb;
-  color: #0f172a;
-  border: 1px solid rgba(15, 23, 42, 0.08);
+  background: white;
+  color: #374151;
+  border: 1px solid #d1d5db;
+}
+
+.ghost-btn:hover {
+  background: #f3f4f6;
+  border-color: #9ca3af;
 }
 
 .ghost-btn.danger {
-  color: #f04438;
-  border-color: rgba(240, 68, 56, 0.25);
+  color: #dc2626;
+  border-color: #fca5a5;
 }
 
-.ghost-btn:hover,
-.primary-btn:hover {
-  transform: translateY(-1px);
+.ghost-btn.danger:hover {
+  background: #fef2f2;
+  border-color: #f87171;
 }
 
 .sr-only {
@@ -778,20 +823,18 @@ onBeforeUnmount(() => {
     min-height: 200px;
   }
 
-  .floating-card,
-  .floating-card.secondary {
-    position: relative;
-    width: 100%;
-    left: 0;
-    top: 0;
-    animation: none;
-    margin-top: 1rem;
+  .camera-hero-image {
+    max-width: 240px;
   }
 }
 
 @media (max-width: 640px) {
   .hero-text h1 {
     font-size: 2rem;
+  }
+
+  .camera-hero-image {
+    max-width: 200px;
   }
 
   .controls {

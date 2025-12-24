@@ -40,14 +40,14 @@
 
           <!-- 탭 메뉴 -->
           <div class="tab-menu">
-            <button class="tab-item active">사진보기</button>
-            <button class="tab-item">상세정보</button>
-            <button class="tab-item">댓글</button>
-            <button class="tab-item">추천여행</button>
+            <button class="tab-item" :class="{ active: activeTab === 'images' }" @click="scrollToSection('images')">사진보기</button>
+            <button class="tab-item" :class="{ active: activeTab === 'details' }" @click="scrollToSection('details')">상세정보</button>
+            <button class="tab-item" :class="{ active: activeTab === 'recommendations' }" @click="scrollToSection('recommendations')">추천여행</button>
+            <button class="tab-item" :class="{ active: activeTab === 'comments' }" @click="scrollToSection('comments')">댓글</button>
           </div>
 
           <!-- 메인 이미지 -->
-          <div class="main-image-section">
+          <div id="section-images" class="main-image-section">
             <div class="image-container">
               <img
                 v-if="images.length > 0"
@@ -64,19 +64,22 @@
           </div>
 
           <!-- 상세 설명 -->
-          <div class="description-section">
+          <div id="section-details" class="description-section">
             <h2 class="section-title">상세정보</h2>
-            <p class="description-text" v-if="destination.overview">
+
+            <!-- AI 설명 로딩 중 -->
+            <div v-if="aiDescriptionLoading" class="ai-description-loading">
+              <div class="loading-spinner-small"></div>
+              <p>AI가 여행지 정보를 분석하고 있습니다...</p>
+            </div>
+
+            <!-- 설명 표시 -->
+            <p class="description-text" v-else-if="destination.overview">
               {{ destination.overview }}
             </p>
             <p class="description-text no-content" v-else>
               상세 설명이 준비 중입니다.
             </p>
-          </div>
-
-          <!-- 지도 -->
-          <div class="map-section">
-            <div id="kakao-map" class="kakao-map"></div>
           </div>
 
           <!-- 기본 정보 그리드 -->
@@ -164,6 +167,11 @@
             <span class="tag">#무장애여행</span>
           </div>
 
+          <!-- 지도 -->
+          <div class="map-section">
+            <div id="kakao-map" class="kakao-map"></div>
+          </div>
+
           <!-- 무장애 정보 -->
           <div class="accessibility-section">
             <h2 class="section-title">무장애 관광 정보</h2>
@@ -181,7 +189,7 @@
           </div>
 
           <!-- 추천 여행지 -->
-          <div class="recommendations-section" v-if="recommendations.length > 0">
+          <div id="section-recommendations" class="recommendations-section" v-if="recommendations.length > 0">
             <h2 class="section-title">{{ getRegionName(destination.areacode) }} 추천 여행지</h2>
             <div class="recommendation-grid">
               <div
@@ -205,7 +213,7 @@
           </div>
 
           <!-- 댓글 섹션 -->
-          <div class="comments-section">
+          <div id="section-comments" class="comments-section">
             <div class="comments-header">
               <h2 class="section-title">댓글 ({{ reviews.length }})</h2>
             </div>
@@ -397,11 +405,13 @@
 <script setup>
 import { ref, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { useAuthStore } from '@/stores/auth'
 import NavigationBar from '@/components/common/NavigationBar.vue'
 import api from '@/services/api'
 
 const route = useRoute()
 const router = useRouter()
+const authStore = useAuthStore()
 
 const isLoading = ref(true)
 const error = ref(null)
@@ -457,6 +467,12 @@ const aiSummary = ref('')
 const aiSummaryLoading = ref(false)
 const isLoggedIn = ref(false)
 
+// AI 설명 생성 관련
+const aiDescriptionLoading = ref(false)
+
+// 탭 관련
+const activeTab = ref('images')
+
 // 북마크 관련
 const isBookmarked = ref(false)
 
@@ -509,6 +525,56 @@ const formatDate = (dateString) => {
   const day = dateString.substring(6, 8)
 
   return `${year}-${month}-${day}`
+}
+
+// 탭 클릭 시 해당 섹션으로 스크롤
+const scrollToSection = (section) => {
+  activeTab.value = section
+  const elementId = `section-${section}`
+  const element = document.getElementById(elementId)
+
+  if (element) {
+    const navbarHeight = 80 // NavigationBar 높이
+    const tabMenuHeight = 60 // 탭 메뉴 높이
+    const offset = navbarHeight + tabMenuHeight + 20 // 여유 공간 추가
+
+    const elementPosition = element.getBoundingClientRect().top
+    const offsetPosition = elementPosition + window.pageYOffset - offset
+
+    window.scrollTo({
+      top: offsetPosition,
+      behavior: 'smooth'
+    })
+  }
+}
+
+// AI 설명 생성
+const generateAIDescription = async (travelSpotId) => {
+  if (!travelSpotId) {
+    console.log('⚠️ travelSpotId가 없어서 AI 설명을 생성할 수 없습니다.')
+    return
+  }
+
+  console.log('🤖 AI 설명 생성 시도:', travelSpotId)
+  aiDescriptionLoading.value = true
+
+  try {
+    const response = await api.generateTravelSpotDescription(travelSpotId)
+    console.log('✅ AI 설명 생성 응답:', response.data)
+
+    if (response.data.success && response.data.description) {
+      // destination.overview 업데이트
+      destination.value.overview = response.data.description
+      console.log('✅ AI 설명 적용 완료')
+    } else {
+      console.log('⚠️ AI 설명 생성 실패:', response.data.message)
+    }
+  } catch (error) {
+    console.error('❌ AI 설명 생성 실패:', error)
+    console.error('에러 상세:', error.response?.data)
+  } finally {
+    aiDescriptionLoading.value = false
+  }
 }
 
 // 같은 지역 추천 여행지 가져오기
@@ -736,6 +802,12 @@ const fetchDestinationDetail = async () => {
 
     // 같은 지역 추천 여행지 가져오기
     await fetchRecommendations(travelSpot.area_code, contentId)
+
+    // AI 설명 생성 (설명이 없거나 너무 짧을 때)
+    if (!destination.value.overview || destination.value.overview.trim().length < 20) {
+      console.log('📝 설명이 없거나 부족하여 AI 설명 생성 시작...')
+      await generateAIDescription(travelSpot.id)
+    }
 
     // 지도 초기화 (데이터 로딩 완료 후)
     if (destination.value.mapx && destination.value.mapy) {
@@ -978,11 +1050,17 @@ const deleteReview = async (reviewId) => {
 // 댓글 삭제 권한 확인
 const canDeleteReview = (review) => {
   // 로그인 안 했으면 false
-  if (!isLoggedIn.value) return false
+  if (!isLoggedIn.value || !authStore.isLoggedIn) return false
 
-  // 본인 댓글이면 true (username 또는 user_name으로 확인)
-  const currentUsername = localStorage.getItem('username')
-  return review.user_name === currentUsername || review.username === currentUsername
+  const currentUser = authStore.currentUser
+  if (!currentUser) return false
+
+  // 본인 댓글이면 true (user_id로 확인)
+  // review.user_id와 currentUser의 id 또는 username으로 비교
+  return review.user_id === currentUser.id ||
+         review.user_name === currentUser.username ||
+         review.username === currentUser.username ||
+         review.user_name === currentUser.name
 }
 
 // 댓글 날짜 포맷
@@ -1013,6 +1091,11 @@ const checkLoginStatus = async () => {
     if (token) {
       const response = await api.getCurrentUser()
       console.log('✅ 로그인 상태 확인 성공:', response.data)
+
+      // authStore에 사용자 정보 저장
+      authStore.setUser(response.data)
+      authStore.setToken(token)
+
       isLoggedIn.value = true
     } else {
       console.log('⚠️ 토큰 없음 - 로그아웃 상태')
@@ -1021,6 +1104,7 @@ const checkLoginStatus = async () => {
   } catch (error) {
     console.error('❌ 로그인 상태 확인 실패:', error)
     isLoggedIn.value = false
+    authStore.logout()
   }
 }
 
@@ -2279,5 +2363,24 @@ watch(() => route.params.id, (newId, oldId) => {
 .comment-textarea:disabled {
   background: #f3f4f6;
   cursor: not-allowed;
+}
+
+/* AI 설명 로딩 */
+.ai-description-loading {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 2rem;
+  background: linear-gradient(135deg, #eff6ff 0%, #f0f9ff 100%);
+  border: 2px dashed #bfdbfe;
+  border-radius: 12px;
+  color: #3b82f6;
+}
+
+.ai-description-loading p {
+  margin: 0;
+  font-size: 1rem;
+  color: #1e40af;
+  font-weight: 500;
 }
 </style>

@@ -36,9 +36,9 @@
       </section>
 
       <!-- AI 카메라 섹션 -->
-      <section class="section scroll-snap-section" data-section="ai-camera">
+      <!-- <section class="section scroll-snap-section" data-section="ai-camera">
         <AICameraSection @focus="handleFocus" />
-      </section>
+      </section> -->
 
       <!-- 푸터 -->
       <FooterSection @focus="handleFocus" />

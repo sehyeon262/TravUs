@@ -129,6 +129,11 @@ export default {
     })
   },
 
+  // AI 여행지 설명 생성
+  generateTravelSpotDescription(travelSpotId) {
+    return apiClient.post(`/travel-spots/${travelSpotId}/generate_description/`)
+  },
+
   // User features
   getCategories() {
     return apiClient.get('/categories/')
@@ -272,5 +277,9 @@ export default {
     return aiClient.post('/speech/', formData, {
       headers: { 'Content-Type': 'multipart/form-data' }
     })
+  },
+
+  generateSpotDescription(data) {
+    return aiClient.post('/spot-description/', data)
   }
 }
