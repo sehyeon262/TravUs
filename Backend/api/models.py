@@ -242,6 +242,7 @@ class Review(models.Model):
     )
 
     rating = models.IntegerField(
+        default=5,
         validators=[MinValueValidator(1), MaxValueValidator(5)],
         verbose_name='평점'
     )

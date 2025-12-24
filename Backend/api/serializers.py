@@ -30,14 +30,26 @@ class AccessibilityInfoSerializer(serializers.ModelSerializer):
 class TravelSpotListSerializer(serializers.ModelSerializer):
     """여행지 리스트용 Serializer (간단한 정보)"""
     category_name = serializers.CharField(source='category.name', read_only=True)
+    is_bookmarked = serializers.SerializerMethodField()
 
     class Meta:
         model = TravelSpot
         fields = [
             'id', 'content_id', 'name', 'category_name',
             'address', 'area_code', 'image_url', 'thumbnail_url',
-            'rating', 'review_count', 'view_count', 'bookmark_count'
+            'rating', 'review_count', 'view_count', 'bookmark_count',
+            'is_bookmarked'
         ]
+
+    def get_is_bookmarked(self, obj):
+        """현재 사용자가 이 여행지를 북마크했는지 여부"""
+        request = self.context.get('request')
+        if request and request.user.is_authenticated:
+            return Bookmark.objects.filter(
+                user=request.user,
+                travel_spot=obj
+            ).exists()
+        return False
 
 
 class TravelSpotDetailSerializer(serializers.ModelSerializer):
@@ -119,14 +131,22 @@ class CourseSerializer(serializers.ModelSerializer):
 
 class ReviewSerializer(serializers.ModelSerializer):
     username = serializers.CharField(source='user.username', read_only=True)
+    user_name = serializers.CharField(source='user.username', read_only=True)
 
     class Meta:
         model = Review
         fields = [
-            'id', 'user', 'username', 'travel_spot',
+            'id', 'user', 'username', 'user_name', 'travel_spot',
             'rating', 'content', 'accessibility_rating',
             'images', 'like_count', 'created_at', 'updated_at'
         ]
+        extra_kwargs = {
+            'user': {'read_only': True},
+            'rating': {'required': False},
+            'accessibility_rating': {'required': False},
+            'images': {'required': False},
+            'like_count': {'read_only': True}
+        }
 
 
 class SignupSerializer(serializers.ModelSerializer):

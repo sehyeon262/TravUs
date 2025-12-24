@@ -1,15 +1,18 @@
 <template>
-  <div class="travel-card" @click="handleClick">
+  <div class="travel-card">
     <!-- 이미지 -->
-    <div class="card-image">
+    <div class="card-image" @click="handleClick">
       <img :src="destination.image" :alt="destination.name" />
       <div class="card-overlay">
-        <div class="rating">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+        <button
+          class="bookmark-btn"
+          :class="{ bookmarked: isBookmarked }"
+          @click.stop="handleBookmarkClick"
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" :fill="isBookmarked ? 'currentColor' : 'none'" stroke="currentColor" stroke-width="2">
+            <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
-          <span>{{ destination.rating }}</span>
-        </div>
+        </button>
       </div>
     </div>
 
@@ -48,6 +51,12 @@
 </template>
 
 <script setup>
+import { ref, watch } from 'vue'
+import { useRouter } from 'vue-router'
+import api from '@/services/api'
+
+const router = useRouter()
+
 const props = defineProps({
   destination: {
     type: Object,
@@ -55,10 +64,47 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['click'])
+const emit = defineEmits(['click', 'bookmark-changed'])
+
+const isBookmarked = ref(false)
+
+// destination의 북마크 상태를 props에서 가져오기
+watch(() => props.destination, (newVal) => {
+  if (newVal && newVal.is_bookmarked !== undefined) {
+    isBookmarked.value = newVal.is_bookmarked
+  }
+}, { immediate: true })
 
 const handleClick = () => {
   emit('click', props.destination)
+}
+
+const handleBookmarkClick = async () => {
+  const token = localStorage.getItem('access_token')
+  if (!token) {
+    alert('로그인 후 이용 가능합니다.')
+    router.push('/login')
+    return
+  }
+
+  if (!props.destination.id) {
+    alert('여행지 정보를 불러오는 중입니다.')
+    return
+  }
+
+  try {
+    const response = await api.toggleBookmark(props.destination.id)
+    isBookmarked.value = response.data.bookmarked
+
+    // 부모 컴포넌트에 북마크 상태 변경 알림
+    emit('bookmark-changed', {
+      id: props.destination.id,
+      bookmarked: isBookmarked.value
+    })
+  } catch (error) {
+    console.error('❌ 북마크 토글 실패:', error)
+    alert('북마크 처리에 실패했습니다.')
+  }
 }
 </script>
 
@@ -107,26 +153,41 @@ const handleClick = () => {
   bottom: 0;
   background: linear-gradient(to bottom, rgba(0,0,0,0.3), transparent);
   display: flex;
-  justify-content: flex-end;
+  justify-content: flex-start;
   align-items: flex-start;
   padding: 1rem;
 }
 
-.rating {
+.bookmark-btn {
   display: flex;
   align-items: center;
-  gap: 0.25rem;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
   background: rgba(255, 255, 255, 0.95);
-  padding: 0.4rem 0.75rem;
-  border-radius: 20px;
-  font-weight: 600;
-  font-size: 0.875rem;
-  color: #333;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
-.rating svg {
-  color: #fbbf24;
+.bookmark-btn:hover {
+  background: white;
+  transform: scale(1.1);
+}
+
+.bookmark-btn svg {
+  color: #6b7280;
+}
+
+.bookmark-btn.bookmarked {
+  background: #eff6ff;
+  border: 2px solid #667eea;
+}
+
+.bookmark-btn.bookmarked svg {
+  color: #667eea;
 }
 
 .card-content {

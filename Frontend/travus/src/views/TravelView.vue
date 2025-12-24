@@ -203,6 +203,7 @@
             :key="index"
             :destination="formatDestination(destination)"
             @click="handleCardClick(destination)"
+            @bookmark-changed="handleBookmarkChanged"
           />
         </div>
 
@@ -426,16 +427,30 @@ const filteredDestinations = computed(() => {
   return destinations.value
 })
 
+// 지역 이름 매핑
+const getRegionName = (areaCode) => {
+  const regionMap = {
+    '1': '서울', '2': '인천', '3': '대전', '4': '대구', '5': '광주',
+    '6': '부산', '7': '울산', '8': '세종', '31': '경기', '32': '강원',
+    '33': '충북', '34': '충남', '35': '경북', '36': '경남',
+    '37': '전북', '38': '전남', '39': '제주'
+  }
+  return regionMap[String(areaCode)] || '기타'
+}
+
 // 여행지 데이터 포맷 변환
 const formatDestination = (destination) => {
   return {
-    id: destination.contentid || destination.id,
+    id: destination.id,  // DB PK 사용
+    contentid: destination.contentid || destination.content_id,
     name: destination.title || destination.name,
     description: destination.addr1 || destination.address || '주소 정보 없음',
     image: destination.firstimage || destination.image_url || 'https://via.placeholder.com/400x300?text=No+Image',
     rating: destination.rating || 0,
     reviews: destination.review_count || 0,
-    tags: []
+    tags: [],
+    region: getRegionName(destination.areacode || destination.area_code),
+    is_bookmarked: destination.is_bookmarked || false
   }
 }
 
@@ -582,6 +597,18 @@ const handleCardClick = (destination) => {
   // 상세 페이지로 이동 (contentTypeId 포함하여 조회 안정성 향상)
   const typeId = destination.contenttypeid || '12'
   window.location.href = `/travel/${destination.contentid}?contentTypeId=${typeId}`
+}
+
+// 북마크 상태 변경 핸들러
+const handleBookmarkChanged = ({ id, bookmarked }) => {
+  console.log('🔖 북마크 변경됨:', id, bookmarked)
+
+  // destinations 배열에서 해당 항목 찾아서 업데이트
+  const index = destinations.value.findIndex(dest => dest.id === id)
+  if (index !== -1) {
+    destinations.value[index].is_bookmarked = bookmarked
+    console.log('✅ 목록 업데이트 완료')
+  }
 }
 
 // 카테고리 변경시 데이터 자동 새로고침

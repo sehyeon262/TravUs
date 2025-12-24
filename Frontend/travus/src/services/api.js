@@ -146,6 +146,21 @@ export default {
     return apiClient.delete(`/bookmarks/${id}/`)
   },
 
+  // 북마크 토글
+  toggleBookmark(travelSpotId) {
+    return apiClient.post('/bookmarks/toggle/', {
+      travel_spot_id: travelSpotId
+    })
+  },
+
+  // 북마크 상태 확인
+  checkBookmark(travelSpotId) {
+    return apiClient.get('/bookmarks/check/', {
+      params: { travel_spot_id: travelSpotId }
+    })
+  },
+
+  // 코스 목록
   getCourses(params = {}) {
     return apiClient.get('/courses/', { params })
   },
@@ -206,6 +221,11 @@ export default {
 
   createReview(data) {
     return apiClient.post('/reviews/', data)
+  },
+
+  // 리뷰 수정
+  updateReview(reviewId, data) {
+    return apiClient.patch(`/reviews/${reviewId}/`, data)
   },
 
   // 리뷰 삭제

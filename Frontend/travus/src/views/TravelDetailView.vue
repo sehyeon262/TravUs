@@ -28,9 +28,9 @@
                     <path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8M16 6l-4-4-4 4M12 2v13" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                   </svg>
                 </button>
-                <button class="action-btn">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <button class="action-btn bookmark-btn" :class="{ bookmarked: isBookmarked }" @click="toggleBookmark">
+                  <svg width="20" height="20" viewBox="0 0 24 24" :fill="isBookmarked ? 'currentColor' : 'none'" stroke="currentColor">
+                    <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                   </svg>
                 </button>
               </div>
@@ -232,20 +232,6 @@
 
             <!-- 댓글 작성 -->
             <div class="comment-write-section">
-              <div class="comment-rating-section">
-                <span class="rating-label">평점:</span>
-                <div class="star-rating">
-                  <button
-                    v-for="star in 5"
-                    :key="star"
-                    class="star-btn"
-                    :class="{ active: star <= newReview.rating }"
-                    @click="newReview.rating = star"
-                  >
-                    ★
-                  </button>
-                </div>
-              </div>
               <textarea
                 v-model="newReview.content"
                 class="comment-textarea"
@@ -277,30 +263,50 @@
               </div>
 
               <!-- 댓글 아이템 -->
-              <div v-for="review in reviews" :key="review.id" class="comment-item">
-                <div class="comment-user-info">
-                  <div class="user-avatar">
-                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
+              <template v-for="review in reviews" :key="review?.id || Math.random()">
+                <div v-if="review" class="comment-item">
+                  <div class="comment-user-info">
+                    <div class="user-avatar">
+                      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                      </svg>
+                    </div>
+                    <div class="user-details">
+                      <span class="user-name">{{ review.user_name || review.username || '익명' }}</span>
+                    </div>
+                    <span class="comment-date">{{ review.created_at ? formatReviewDate(review.created_at) : '' }}</span>
                   </div>
-                  <div class="user-details">
-                    <span class="user-name">{{ review.user_name || review.username }}</span>
-                    <div class="review-rating">
-                      <span v-for="star in 5" :key="star" class="star" :class="{ filled: star <= review.rating }">★</span>
+
+                  <!-- 수정 모드가 아닐 때 -->
+                  <div v-if="editingReview !== review.id" class="comment-content">
+                    <p>{{ review.content || '' }}</p>
+                  </div>
+
+                  <!-- 수정 모드일 때 -->
+                  <div v-else class="comment-edit-section">
+                    <textarea
+                      v-model="editContent"
+                      class="comment-textarea"
+                      rows="3"
+                    ></textarea>
+                    <div class="comment-edit-actions">
+                      <button class="comment-btn-secondary" @click="cancelEdit">취소</button>
+                      <button class="comment-btn-primary" @click="saveEdit(review.id)">저장</button>
                     </div>
                   </div>
-                  <span class="comment-date">{{ formatReviewDate(review.created_at) }}</span>
+
+                  <div class="comment-footer">
+                    <template v-if="canDeleteReview(review)">
+                      <button v-if="editingReview !== review.id" class="comment-edit-btn" @click="startEdit(review)">
+                        수정
+                      </button>
+                      <button class="comment-delete-btn" @click="deleteReview(review.id)">
+                        삭제
+                      </button>
+                    </template>
+                  </div>
                 </div>
-                <div class="comment-content">
-                  <p>{{ review.content }}</p>
-                </div>
-                <div class="comment-footer">
-                  <button v-if="canDeleteReview(review)" class="comment-delete-btn" @click="deleteReview(review.id)">
-                    삭제
-                  </button>
-                </div>
-              </div>
+              </template>
             </div>
           </div>
         </div>
@@ -442,13 +448,17 @@ const currentUrl = ref('')
 // 댓글 관련
 const reviews = ref([])
 const newReview = ref({
-  rating: 5,
   content: ''
 })
+const editingReview = ref(null)
+const editContent = ref('')
 const showGuidelinesModal = ref(false)
 const aiSummary = ref('')
 const aiSummaryLoading = ref(false)
 const isLoggedIn = ref(false)
+
+// 북마크 관련
+const isBookmarked = ref(false)
 
 const regionMap = {
   '1': '서울',
@@ -614,6 +624,7 @@ const fetchDestinationDetail = async () => {
 
     // DB 응답을 기존 API 응답 형식에 맞게 매핑
     destination.value = {
+      id: travelSpot.id, // DB PK 추가 (댓글 작성에 필요)
       contentid: travelSpot.content_id,
       contenttypeid: travelSpot.content_type_id,
       title: travelSpot.name,
@@ -762,6 +773,8 @@ const fetchDestinationDetail = async () => {
     isLoading.value = false
     // 댓글 로드 (에러가 있어도 댓글은 시도)
     await loadReviews()
+    // 북마크 상태 확인
+    await checkBookmarkStatus()
   }
 }
 
@@ -815,35 +828,64 @@ const copyToClipboard = async () => {
 
 // 댓글 불러오기
 const loadReviews = async () => {
-  if (!destination.value?.id) return
+  if (!destination.value?.id) {
+    console.log('⚠️ destination.id가 없어서 댓글을 불러올 수 없습니다.')
+    return
+  }
 
   try {
+    console.log('📝 댓글 불러오기 시도:', destination.value.id)
     const response = await api.getReviews(destination.value.id)
-    reviews.value = response.data
+    console.log('✅ 댓글 응답:', response.data)
+
+    // 응답이 배열인지 확인
+    if (Array.isArray(response.data)) {
+      reviews.value = response.data
+    } else if (response.data.results && Array.isArray(response.data.results)) {
+      // 페이지네이션된 응답인 경우
+      reviews.value = response.data.results
+    } else {
+      console.warn('⚠️ 예상치 못한 댓글 응답 형식:', response.data)
+      reviews.value = []
+    }
+
+    console.log(`✅ ${reviews.value.length}개 댓글 로드 완료`)
 
     // 댓글이 있으면 AI 요약 로드
     if (reviews.value.length > 0) {
       loadAISummary()
     }
   } catch (error) {
-    console.error('댓글 불러오기 실패:', error)
+    console.error('❌ 댓글 불러오기 실패:', error)
+    reviews.value = []
   }
 }
 
 // AI 요약 불러오기
 const loadAISummary = async () => {
-  if (!destination.value?.id) return
+  if (!destination.value?.id) {
+    console.log('⚠️ destination.id가 없어서 AI 요약을 불러올 수 없습니다.')
+    return
+  }
 
+  console.log('🤖 AI 요약 불러오기 시도:', destination.value.id)
   aiSummaryLoading.value = true
   try {
     const response = await api.getReviewSummary(destination.value.id)
+    console.log('✅ AI 요약 응답:', response.data)
+
     // 실제 댓글이 있을 때만 요약 표시
-    if (response.data.review_count > 0) {
+    if (response.data && response.data.review_count > 0 && response.data.summary) {
       aiSummary.value = response.data.summary
+      console.log('✅ AI 요약 설정 완료')
+    } else {
+      console.log('⚠️ 댓글이 없거나 요약이 없습니다:', response.data)
+      aiSummary.value = ''
     }
   } catch (error) {
-    console.error('AI 요약 불러오기 실패:', error)
-    // 에러 발생 시 aiSummary를 비워서 섹션이 표시되지 않도록 함
+    console.error('❌ AI 요약 불러오기 실패:', error)
+    console.error('에러 상세:', error.response?.data)
+    aiSummary.value = ''
   } finally {
     aiSummaryLoading.value = false
   }
@@ -863,15 +905,18 @@ const submitReview = async () => {
   }
 
   try {
+    console.log('📝 댓글 작성 시도:', {
+      travel_spot_id: destination.value.id,
+      content: newReview.value.content
+    })
+
     await api.createReview({
       travel_spot: destination.value.id,
-      rating: newReview.value.rating,
       content: newReview.value.content
     })
 
     // 댓글 초기화
     newReview.value = {
-      rating: 5,
       content: ''
     }
 
@@ -879,8 +924,40 @@ const submitReview = async () => {
     await loadReviews()
     alert('댓글이 작성되었습니다.')
   } catch (error) {
-    console.error('댓글 작성 실패:', error)
-    alert('댓글 작성에 실패했습니다.')
+    console.error('❌ 댓글 작성 실패:', error)
+    console.error('에러 상세:', error.response?.data)
+    alert(`댓글 작성에 실패했습니다.\n${error.response?.data?.detail || error.message}`)
+  }
+}
+
+// 댓글 수정 시작
+const startEdit = (review) => {
+  editingReview.value = review.id
+  editContent.value = review.content
+}
+
+// 댓글 수정 취소
+const cancelEdit = () => {
+  editingReview.value = null
+  editContent.value = ''
+}
+
+// 댓글 수정 저장
+const saveEdit = async (reviewId) => {
+  if (!editContent.value.trim()) {
+    alert('댓글 내용을 입력해주세요.')
+    return
+  }
+
+  try {
+    await api.updateReview(reviewId, { content: editContent.value })
+    editingReview.value = null
+    editContent.value = ''
+    await loadReviews()
+    alert('댓글이 수정되었습니다.')
+  } catch (error) {
+    console.error('댓글 수정 실패:', error)
+    alert('댓글 수정에 실패했습니다.')
   }
 }
 
@@ -931,12 +1008,64 @@ const formatReviewDate = (dateString) => {
 const checkLoginStatus = async () => {
   try {
     const token = localStorage.getItem('access_token')
+    console.log('🔐 토큰 확인:', token ? '있음' : '없음')
+
     if (token) {
-      await api.getCurrentUser()
+      const response = await api.getCurrentUser()
+      console.log('✅ 로그인 상태 확인 성공:', response.data)
       isLoggedIn.value = true
+    } else {
+      console.log('⚠️ 토큰 없음 - 로그아웃 상태')
+      isLoggedIn.value = false
     }
   } catch (error) {
+    console.error('❌ 로그인 상태 확인 실패:', error)
     isLoggedIn.value = false
+  }
+}
+
+// 북마크 상태 확인
+const checkBookmarkStatus = async () => {
+  if (!isLoggedIn.value || !destination.value?.id) {
+    isBookmarked.value = false
+    return
+  }
+
+  try {
+    const response = await api.checkBookmark(destination.value.id)
+    isBookmarked.value = response.data.bookmarked
+    console.log('🔖 북마크 상태:', isBookmarked.value)
+  } catch (error) {
+    console.error('❌ 북마크 상태 확인 실패:', error)
+    isBookmarked.value = false
+  }
+}
+
+// 북마크 토글
+const toggleBookmark = async () => {
+  if (!isLoggedIn.value) {
+    alert('로그인 후 이용 가능합니다.')
+    router.push('/login')
+    return
+  }
+
+  if (!destination.value?.id) {
+    alert('여행지 정보를 불러오는 중입니다.')
+    return
+  }
+
+  try {
+    const response = await api.toggleBookmark(destination.value.id)
+    isBookmarked.value = response.data.bookmarked
+
+    if (isBookmarked.value) {
+      alert('북마크에 추가되었습니다.')
+    } else {
+      alert('북마크가 삭제되었습니다.')
+    }
+  } catch (error) {
+    console.error('❌ 북마크 토글 실패:', error)
+    alert('북마크 처리에 실패했습니다.')
   }
 }
 
@@ -1069,6 +1198,19 @@ watch(() => route.params.id, (newId, oldId) => {
 
 .action-btn svg {
   color: #6b7280;
+}
+
+.bookmark-btn.bookmarked {
+  background: #eff6ff;
+  border-color: #667eea;
+}
+
+.bookmark-btn.bookmarked svg {
+  color: #667eea;
+}
+
+.bookmark-btn:hover {
+  background: #eff6ff;
 }
 
 .page-title {
@@ -1243,6 +1385,10 @@ watch(() => route.params.id, (newId, oldId) => {
   background: linear-gradient(135deg, #dbeafe 0%, #eff6ff 100%);
   border-radius: 12px;
   margin-bottom: 3rem;
+}
+
+.ai-summary-section img{
+  height: 90px;
 }
 
 .ai-summary-header {
@@ -2004,21 +2150,53 @@ watch(() => route.params.id, (newId, oldId) => {
   color: #fbbf24;
 }
 
-/* 댓글 삭제 버튼 */
+/* 댓글 수정/삭제 버튼 */
+.comment-edit-btn,
 .comment-delete-btn {
   padding: 0.25rem 0.75rem;
   background: none;
   border: 1px solid #e5e7eb;
   border-radius: 4px;
-  color: #ef4444;
   font-size: 0.8rem;
   cursor: pointer;
   transition: all 0.2s;
+  margin-left: 0.5rem;
+}
+
+.comment-edit-btn {
+  color: #667eea;
+}
+
+.comment-edit-btn:hover {
+  background: #eff6ff;
+  border-color: #667eea;
+}
+
+.comment-delete-btn {
+  color: #ef4444;
 }
 
 .comment-delete-btn:hover {
   background: #fef2f2;
   border-color: #ef4444;
+}
+
+/* 댓글 수정 섹션 */
+.comment-edit-section {
+  margin: 1rem 0;
+}
+
+.comment-edit-actions {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-end;
+  margin-top: 0.75rem;
+}
+
+.comment-footer {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
 }
 
 /* 유의사항 모달 */

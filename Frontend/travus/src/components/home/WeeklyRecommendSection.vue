@@ -27,16 +27,20 @@
           <div class="carousel-track" :style="trackStyle">
             <div
               v-for="(destination, index) in destinations"
-              :key="index"
+              :key="destination.id || destination.contentid || index"
               class="carousel-card"
               @click="handleCardClick(destination)"
             >
               <!-- 이미지 -->
               <div class="card-image">
                 <img :src="formatDestination(destination).image" :alt="formatDestination(destination).name" />
-                <button class="bookmark-btn" @click.stop="handleBookmark(destination)">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <button
+                  class="bookmark-btn"
+                  :class="{ bookmarked: destination.is_bookmarked }"
+                  @click.stop="handleBookmark(destination)"
+                >
+                  <svg width="20" height="20" viewBox="0 0 24 24" :fill="destination.is_bookmarked ? 'currentColor' : 'none'" stroke="currentColor" stroke-width="2">
+                    <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" stroke-linecap="round" stroke-linejoin="round"/>
                   </svg>
                 </button>
               </div>
@@ -100,9 +104,36 @@ const handleCardClick = (destination) => {
 }
 
 // 북마크 핸들러
-const handleBookmark = (destination) => {
-  console.log('Bookmark clicked:', destination)
-  // TODO: 북마크 추가/삭제 로직 추가
+const handleBookmark = async (destination) => {
+  const token = localStorage.getItem('access_token')
+  if (!token) {
+    alert('로그인 후 이용 가능합니다.')
+    router.push('/login')
+    return
+  }
+
+  if (!destination.contentid) {
+    alert('여행지 정보를 불러오는 중입니다.')
+    return
+  }
+
+  try {
+    // destination.contentid를 사용하여 DB의 TravelSpot을 찾아야 함
+    // 하지만 현재 destination 객체에 DB의 id가 없는 상태
+    // formatDestination에서 id를 매핑하도록 수정 필요
+    const response = await api.toggleBookmark(destination.id)
+
+    // 로컬 상태 업데이트
+    const index = destinations.value.findIndex(d => d.contentid === destination.contentid)
+    if (index !== -1) {
+      destinations.value[index].is_bookmarked = response.data.bookmarked
+    }
+
+    console.log(response.data.bookmarked ? '✅ 북마크 추가' : '❌ 북마크 삭제')
+  } catch (error) {
+    console.error('❌ 북마크 토글 실패:', error)
+    alert('북마크 처리에 실패했습니다.')
+  }
 }
 
 // 트랙 스타일
@@ -148,11 +179,12 @@ const regionMap = {
 // 여행지 데이터를 카드 형식으로 변환
 const formatDestination = (item) => {
   return {
-    id: item.contentid || '',
-    name: item.title || '제목 없음',
-    image: item.firstimage || 'https://via.placeholder.com/400x300',
-    description: item.addr1 || '주소 정보 없음',
-    region: regionMap[item.areacode] || '기타'
+    id: item.id || item.contentid || '',  // DB PK (id) 우선 사용
+    contentid: item.contentid || item.content_id || '',
+    name: item.title || item.name || '제목 없음',
+    image: item.firstimage || item.image_url || 'https://via.placeholder.com/400x300',
+    description: item.addr1 || item.address || '주소 정보 없음',
+    region: regionMap[item.areacode || item.area_code] || '기타'
   }
 }
 
@@ -196,13 +228,15 @@ const fetchDestinations = async () => {
     if (response.data && response.data.results) {
       // DB 응답을 기존 형식으로 매핑
       const results = response.data.results.map(item => ({
+        id: item.id,  // DB PK 추가
         contentid: item.content_id,
         contenttypeid: item.content_type_id,
         title: item.name,
         addr1: item.address,
         areacode: item.area_code,
         firstimage: item.image_url,
-        firstimage2: item.thumbnail_url
+        firstimage2: item.thumbnail_url,
+        is_bookmarked: item.is_bookmarked || false  // 북마크 상태 추가
       }))
 
       // 이미지가 있는 것만 필터링
@@ -385,6 +419,15 @@ onMounted(() => {
 }
 
 .bookmark-btn svg {
+  color: #667eea;
+}
+
+.bookmark-btn.bookmarked {
+  background: #eff6ff;
+  border: 2px solid #667eea;
+}
+
+.bookmark-btn.bookmarked svg {
   color: #667eea;
 }
 

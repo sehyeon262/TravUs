@@ -10,7 +10,8 @@
       "Bash(ls:*)",
       "Bash(wc:*)",
       "Bash(npm run dev:*)",
-      "Bash(python add_course_views.py:*)"
+      "Bash(python add_course_views.py:*)",
+      "Bash(curl:*)"
     ]
   }
 }

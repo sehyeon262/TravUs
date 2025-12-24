@@ -1,4 +1,5 @@
 from django.db import models
+from django.conf import settings
 from rest_framework import viewsets, status, generics, permissions
 from rest_framework.decorators import action, api_view
 from rest_framework.response import Response
@@ -531,6 +532,67 @@ class BookmarkViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
 
+    @action(detail=False, methods=['post'], permission_classes=[permissions.IsAuthenticated])
+    def toggle(self, request):
+        """북마크 토글 (추가/삭제)"""
+        travel_spot_id = request.data.get('travel_spot_id')
+
+        if not travel_spot_id:
+            return Response(
+                {'error': 'travel_spot_id가 필요합니다.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        try:
+            travel_spot = TravelSpot.objects.get(id=travel_spot_id)
+        except TravelSpot.DoesNotExist:
+            return Response(
+                {'error': '여행지를 찾을 수 없습니다.'},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        # 이미 북마크가 있는지 확인
+        bookmark = Bookmark.objects.filter(
+            user=request.user,
+            travel_spot=travel_spot
+        ).first()
+
+        if bookmark:
+            # 북마크 삭제
+            bookmark.delete()
+            return Response({
+                'bookmarked': False,
+                'message': '북마크가 삭제되었습니다.'
+            })
+        else:
+            # 북마크 추가
+            Bookmark.objects.create(
+                user=request.user,
+                travel_spot=travel_spot
+            )
+            return Response({
+                'bookmarked': True,
+                'message': '북마크가 추가되었습니다.'
+            })
+
+    @action(detail=False, methods=['get'], permission_classes=[permissions.IsAuthenticated])
+    def check(self, request):
+        """북마크 상태 확인"""
+        travel_spot_id = request.query_params.get('travel_spot_id')
+
+        if not travel_spot_id:
+            return Response(
+                {'error': 'travel_spot_id가 필요합니다.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        bookmarked = Bookmark.objects.filter(
+            user=request.user,
+            travel_spot_id=travel_spot_id
+        ).exists()
+
+        return Response({'bookmarked': bookmarked})
+
 
 class CourseViewSet(viewsets.ModelViewSet):
     """여행 코스 ViewSet"""
@@ -932,6 +994,8 @@ class ReviewViewSet(viewsets.ModelViewSet):
         return queryset.select_related('user', 'travel_spot').order_by('-created_at')
 
     def perform_create(self, serializer):
+        print(f"🔍 댓글 작성 요청 데이터: {self.request.data}")
+        print(f"🔍 요청 사용자: {self.request.user}")
         serializer.save(user=self.request.user)
 
     @action(detail=False, methods=['get'], permission_classes=[permissions.AllowAny])
@@ -975,7 +1039,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
                     "model": "gpt-4o-mini",
                     "messages": [
                         {
-                            "role": "system",
+                            "role": "developer",
                             "content": "당신은 여행지 리뷰 분석 전문가입니다. 사용자들의 댓글을 분석하여 핵심 내용을 4줄로 간결하게 요약해주세요."
                         },
                         {
