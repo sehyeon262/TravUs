@@ -1,9 +1,7 @@
 <template>
-  <nav class="navbar" :class="{ 'dark-mode': isDarkMode }" :style="{ fontSize: `${fontSize}px` }">
   <nav
     class="navbar"
-    :class="{ 'auth-mode': isAuthPage }"
-    :style="{ fontSize: `${fontSize}px` }"
+    :class="{ 'auth-mode': isAuthPage, 'dark-mode': isDarkMode }"
   >
     <div class="navbar-container">
       <!-- 로고 -->
@@ -38,7 +36,7 @@
         </div>
         <router-link to="/course" class="menu-item" tabindex="0" @focus="handleFocus">여행 코스</router-link>
         <router-link to="/camera" class="menu-item" tabindex="0" @focus="handleFocus">AI 카메라</router-link>
-        <router-link to="/board" class="menu-item" tabindex="0" @focus="handleFocus">게시판</router-link>
+        <router-link to="/board" class="menu-item" tabindex="0" @focus="handleFocus">여행 정보</router-link>
       </div>
 
       <!-- 우측 컨트롤 -->
@@ -63,15 +61,28 @@
           </svg>
         </button>
 
-        <!-- 로그인 -->
-        <button class="icon-btn" tabindex="0" @click="goLogin" @focus="handleFocus" aria-label="로그인">
+        <!-- 로그인/마이페이지 -->
+        <button v-if="!isLoggedIn" class="icon-btn" tabindex="0" @click="goLogin" @focus="handleFocus" aria-label="로그인">
           <svg class="icon-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" fill="currentColor"/>
           </svg>
         </button>
+
+        <!-- 로그인 되어있을 때: 프로필 + 로그아웃 -->
+        <template v-else>
+          <button class="icon-btn" tabindex="0" @click="goMyPage" @focus="handleFocus" aria-label="마이페이지">
+            <svg class="icon-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" fill="currentColor"/>
+            </svg>
+          </button>
+          <button class="icon-btn logout-btn" tabindex="0" @click="handleLogout" @focus="handleFocus" aria-label="로그아웃">
+            <svg class="icon-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z" fill="currentColor"/>
+            </svg>
+          </button>
+        </template>
       </div>
     </div>
-  </nav>
   </nav>
 </template>
 
@@ -80,24 +91,27 @@
 import { computed, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import { useTTS } from '@/composables/useTTS'
+import { alert, confirm } from '@/utils/alert'
 
-const props = defineProps({
-  isTTSEnabled: {
-    type: Boolean,
-    default: true
-  }
-})
-
-const emit = defineEmits(['toggle-tts', 'font-size-change', 'focus'])
+const emit = defineEmits(['font-size-change', 'focus'])
 
 const router = useRouter()
 const route = useRoute()
 const authStore = useAuthStore()
+const { isTTSEnabled, toggleTTS } = useTTS()
+
+// 로그인 상태 확인
+const isLoggedIn = computed(() => {
+  const token = localStorage.getItem('access_token')
+  return !!(authStore.isLoggedIn && token)
+})
 
 // 상단바 글씨색 검정색으로 바뀜!
 const isAuthPage = computed(() => ['login', 'signup', 'mypage', 'mypage-info', 'mypage-comments'].includes(route.name))
 
-const fontSize = ref(16)
+const FONT_SIZE_STORAGE_KEY = 'travus-font-size'
+const fontSize = ref(parseInt(localStorage.getItem(FONT_SIZE_STORAGE_KEY) || '16'))
 const minFontSize = 12
 const maxFontSize = 24
 const showTravelMenu = ref(false)
@@ -111,6 +125,8 @@ const isDarkMode = computed(() => {
 const increaseFontSize = () => {
   if (fontSize.value < maxFontSize) {
     fontSize.value += 2
+    localStorage.setItem(FONT_SIZE_STORAGE_KEY, fontSize.value.toString())
+    window.dispatchEvent(new CustomEvent('font-size-change', { detail: fontSize.value }))
     emit('font-size-change', fontSize.value)
   }
 }
@@ -118,12 +134,10 @@ const increaseFontSize = () => {
 const decreaseFontSize = () => {
   if (fontSize.value > minFontSize) {
     fontSize.value -= 2
+    localStorage.setItem(FONT_SIZE_STORAGE_KEY, fontSize.value.toString())
+    window.dispatchEvent(new CustomEvent('font-size-change', { detail: fontSize.value }))
     emit('font-size-change', fontSize.value)
   }
-}
-
-const toggleTTS = () => {
-  emit('toggle-tts')
 }
 
 const openMenu = () => {
@@ -153,17 +167,20 @@ const closeMenuImmediate = () => {
 }
 
 const goLogin = () => {
-  // 실제 토큰이 있는지 확인
-  const token = localStorage.getItem('access_token')
-  if (token && authStore.isLoggedIn) {
-    router.push('/mypage')
-    return
-  }
-  // 토큰이 없으면 로그아웃 처리
-  if (!token && authStore.isLoggedIn) {
-    authStore.logout()
-  }
   router.push('/login')
+}
+
+const goMyPage = () => {
+  router.push('/mypage')
+}
+
+const handleLogout = async () => {
+  const result = await confirm('로그아웃 하시겠습니까?')
+  if (result) {
+    authStore.logout()
+    await alert('로그아웃 되었습니다.')
+    router.push('/')
+  }
 }
 
 const handleFocus = (event) => {
@@ -408,6 +425,20 @@ const handleFocus = (event) => {
   width: 1.125em;
   height: 1.125em;
   color: #1a1a1a;
+}
+
+.logout-btn {
+  background: rgba(239, 68, 68, 0.9);
+}
+
+.logout-btn:hover {
+  background: rgb(220, 38, 38);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+}
+
+.logout-btn .icon-svg {
+  color: #ffffff;
 }
 
 @media (max-width: 768px) {

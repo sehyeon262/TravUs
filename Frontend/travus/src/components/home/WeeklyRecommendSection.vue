@@ -218,11 +218,15 @@ const fetchDestinations = async () => {
   try {
     console.log('📍 DB에서 추천 여행지 조회')
 
+    // 랜덤 offset 생성 (0~900 범위에서 랜덤하게 시작)
+    const randomOffset = Math.floor(Math.random() * 900)
+
     // DB에서 관광지 (content_type_id=12) 가져오기
     const response = await api.getTravelSpots({
       content_type_id: '12',
       page_size: 100,
-      ordering: '-view_count'  // 조회수 높은 순
+      offset: randomOffset,  // 랜덤 offset으로 매번 다른 데이터 범위 가져오기
+      ordering: '?'  // 랜덤 정렬 (백엔드가 지원하는 경우)
     })
 
     if (response.data && response.data.results) {
@@ -250,7 +254,7 @@ const fetchDestinations = async () => {
       }
 
       destinations.value = shuffled.slice(0, 10)
-      console.log(`✅ ${destinations.value.length}개 추천 여행지 로드 완료`)
+      console.log(`✅ ${destinations.value.length}개 추천 여행지 로드 완료 (offset: ${randomOffset})`)
     }
   } catch (error) {
     console.error('❌ 추천 여행지 로드 실패:', error)

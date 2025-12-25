@@ -218,6 +218,7 @@ import NavigationBar from '@/components/common/NavigationBar.vue'
 import { useAuthStore } from '@/stores/auth'
 import { useTTS } from '@/composables/useTTS'
 import api from '@/services/api'
+import { alert, confirm } from '@/utils/alert'
 
 const authStore = useAuthStore()
 const router = useRouter()
@@ -283,8 +284,11 @@ const filteredBookmarks = computed(() => {
 
 // 로그인 확인
 onMounted(async () => {
-  if (!authStore.isLoggedIn) {
-    alert('로그인이 필요한 서비스입니다.')
+  // 토큰이 없거나 로그인 상태가 아니면 로그인 페이지로
+  const token = localStorage.getItem('access_token')
+  if (!authStore.isLoggedIn || !token) {
+    await alert('로그인이 필요한 서비스입니다.')
+    authStore.logout() // 상태 정리
     router.push('/login')
     return
   }
@@ -355,6 +359,13 @@ const loadUserData = async () => {
   } catch (error) {
     console.error('데이터 로드 실패:', error)
     console.error('에러 상세:', error.response?.data)
+
+    // 401 에러(인증 실패) 시 로그아웃 처리
+    if (error.response?.status === 401) {
+      await alert('로그인이 만료되었습니다. 다시 로그인해주세요.')
+      authStore.logout()
+      router.push('/login')
+    }
   }
 }
 
@@ -371,35 +382,36 @@ const formatDate = (dateString) => {
   return date.toLocaleDateString('ko-KR')
 }
 
-const goToTravelSpot = (travelSpotId) => {
+const goToTravelSpot = async (travelSpotId) => {
   if (!travelSpotId) {
-    alert('여행지 정보를 찾을 수 없습니다.')
+    await alert('여행지 정보를 찾을 수 없습니다.')
     return
   }
   router.push(`/travel/${travelSpotId}`)
 }
 
-const goToTravelSpotFromReview = (review) => {
+const goToTravelSpotFromReview = async (review) => {
   const spotId = review.travel_spot || review.travel_spot_id
   if (!spotId) {
-    alert('여행지 정보를 찾을 수 없습니다.')
+    await alert('여행지 정보를 찾을 수 없습니다.')
     return
   }
   router.push(`/travel/${spotId}`)
 }
 
-const goToCourse = (courseId) => {
+const goToCourse = async (courseId) => {
   if (!courseId) {
-    alert('코스 정보를 찾을 수 없습니다.')
+    await alert('코스 정보를 찾을 수 없습니다.')
     return
   }
   router.push(`/course/${courseId}`)
 }
 
-const handleWithdraw = () => {
-  if (confirm('정말 회원 탈퇴하시겠습니까?\n모든 데이터가 삭제되며 복구할 수 없습니다.')) {
+const handleWithdraw = async () => {
+  const result = await confirm('정말 회원 탈퇴하시겠습니까?\n모든 데이터가 삭제되며 복구할 수 없습니다.')
+  if (result) {
     // TODO: 회원 탈퇴 API 구현
-    alert('회원 탈퇴 기능은 준비 중입니다.')
+    await alert('회원 탈퇴 기능은 준비 중입니다.')
   }
 }
 

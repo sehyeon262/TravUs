@@ -4,15 +4,15 @@
       <!-- 상단 영역: 소셜 아이콘 & 연락처 -->
       <div class="footer-top">
         <div class="social-links">
-          <a href="#" class="social-icon" aria-label="GitHub"><i class="fa-brands fa-github"></i></a>
-          <a href="#" class="social-icon" aria-label="GitLab"><i class="fa-brands fa-gitlab"></i></a>
-          <a href="#" class="social-icon" aria-label="YouTube"><i class="fa-brands fa-youtube"></i></a>
-          <a href="#" class="social-icon" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
-          <a href="#" class="social-icon" aria-label="Location"><i class="fa-solid fa-location-dot"></i></a>
+          <a href="https://github.com/travus-project" target="_blank" class="social-icon" aria-label="GitHub"><i class="fa-brands fa-github"></i></a>
+          <a href="mailto:support@travus.com" class="social-icon" aria-label="이메일"><i class="fa-solid fa-envelope"></i></a>
+          <a href="https://www.youtube.com/@travus" target="_blank" class="social-icon" aria-label="YouTube"><i class="fa-brands fa-youtube"></i></a>
+          <a href="https://www.instagram.com/travus_official" target="_blank" class="social-icon" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
+          <a href="https://www.google.com/maps" target="_blank" class="social-icon" aria-label="여행지 찾기"><i class="fa-solid fa-location-dot"></i></a>
         </div>
         <div class="contact-info">
           <span><strong>M.</strong> tjfls295@naver.com</span>
-          <span><strong>M.</strong> admin@travus.com</span>
+          <span><strong>M.</strong> ssehyeoniz@naver.com</span>
         </div>
       </div>
 
@@ -24,27 +24,28 @@
         <!-- 메뉴 링크 -->
         <div class="footer-menu">
           <div class="menu-column">
-            <a href="#" class="menu-link">Services</a>
+            <span class="menu-link">Services</span>
             <div class="sub-menu">
-              <a href="#">여행지 추천</a> 
-              <a href="#">AI 여행 도우미</a>
-              <a href="#">무장애 접근성 안내</a>
-  
+              <router-link to="/travel">여행지 탐색</router-link>
+              <router-link to="/course">여행 코스 만들기</router-link>
+              <router-link to="/camera">AI 카메라</router-link>
+              <router-link to="/board">커뮤니티</router-link>
             </div>
           </div>
           <div class="menu-column">
-            <a href="#" class="menu-link">Support</a>
+            <span class="menu-link">Accessibility</span>
             <div class="sub-menu">
-              <a href="#">1:1문의</a>
-              <a href="#">FAQ</a>
-              <a href="#">접근성 도움말</a>
+              <a href="#" @click.prevent>음성 안내 (TTS)</a>
+              <a href="#" @click.prevent>확대/축소 기능</a>
+              <a href="#" @click.prevent>키보드 네비게이션</a>
+              <a href="#" @click.prevent>무장애 여행 정보</a>
             </div>
           </div>
           <div class="menu-column">
-            <a href="#" class="menu-link">Policy</a>
+            <span class="menu-link">Support</span>
             <div class="sub-menu">
-              <a href="#">서비스 이용약관</a>
-              <a href="#">개인정보 처리방침</a>
+              <a href="mailto:support@travus.com">1:1 문의</a>
+              <router-link to="/about">서비스 소개</router-link>
             </div>
           </div>
         </div>
@@ -52,7 +53,14 @@
 
       <!-- 최하단: 회사 정보 -->
       <div class="footer-bottom">
-        <div class="copyright">© 2025 TravUs. All rights reserved.</div>
+        <div class="copyright">© 2025 TRAVUS. 모두를 위한 여행, 모두의 여행.</div>
+        <div class="footer-info">
+          <span>TRAVUS Team</span>
+          <span>|</span>
+          <a href="#" @click.prevent>개인정보처리방침</a>
+          <span>|</span>
+          <a href="#" @click.prevent>이용약관</a>
+        </div>
       </div>
 
       <!-- 맨 위로 버튼 -->
@@ -219,31 +227,11 @@ const handleFocus = (event) => {
 
 .menu-link {
   color: #000;
-  text-decoration: none;
   font-size: 1.2rem;
   font-weight: 700;
-  transition: all 0.3s ease;
-  position: relative;
   margin-bottom: 0.5rem;
-}
-
-.menu-link::after {
-  content: '';
-  position: absolute;
-  bottom: -5px;
-  left: 0;
-  width: 0;
-  height: 2px;
-  background: #000;
-  transition: width 0.3s ease;
-}
-
-.menu-link:hover {
-  color: #666;
-}
-
-.menu-link:hover::after {
-  width: 100%;
+  display: block;
+  cursor: default;
 }
 
 .sub-menu {
@@ -267,15 +255,37 @@ const handleFocus = (event) => {
 /* 최하단 - 회사 정보 */
 .footer-bottom {
   display: flex;
-  justify-content: center;
+  flex-direction: column;
   align-items: center;
-  gap: 3rem;
+  gap: 1rem;
   padding-top: 1rem;
 }
 
 .copyright {
-  font-size: 0.85rem;
+  font-size: 0.9rem;
+  color: #333;
+  font-weight: 600;
+}
+
+.footer-info {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  font-size: 0.8rem;
   color: #666;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.footer-info a {
+  color: #666;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.footer-info a:hover {
+  color: #000;
+  text-decoration: underline;
 }
 
 .footer-tags {

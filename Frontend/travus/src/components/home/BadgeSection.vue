@@ -34,7 +34,7 @@
       <p class="service-label">코스 추천</p>
     </div>
 
-    <div class="service-item" @click="navigateTo('/ai')">
+    <div class="service-item" @click="navigateTo('/course')">
       <div class="icon-circle">
         <img src="@/assets/ai_badge.png" alt="나만의 코스" />
       </div>

@@ -36,6 +36,18 @@ apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
     console.error('API Error:', error)
+
+    // 401 에러(인증 실패) 시 토큰 정리
+    if (error.response?.status === 401) {
+      console.warn('⚠️ 인증 토큰이 만료되었거나 유효하지 않습니다.')
+
+      // localStorage 정리
+      localStorage.removeItem('access_token')
+      localStorage.removeItem('refresh_token')
+      localStorage.removeItem('travus-auth')
+      sessionStorage.removeItem('travus-auth')
+    }
+
     return Promise.reject(error)
   }
 )
@@ -189,6 +201,11 @@ export default {
     return apiClient.get('/courses/my_courses/')
   },
 
+  // 좋아요한 코스 조회
+  getLikedCourses() {
+    return apiClient.get('/courses/liked_courses/')
+  },
+
   // 월간 Best 30 코스
   getMonthlyBestCourses() {
     return apiClient.get('/courses/monthly_best/')
@@ -246,8 +263,13 @@ export default {
   },
 
   // 코스 댓글 관련
-  getCourseComments(courseId) {
-    return apiClient.get(`/courses/${courseId}/comments/`)
+  getCourseComments(params = {}) {
+    // params가 숫자(courseId)인 경우 특정 코스의 댓글 조회
+    if (typeof params === 'number' || (typeof params === 'string' && !isNaN(params))) {
+      return apiClient.get(`/courses/${params}/comments/`)
+    }
+    // params가 객체인 경우 (예: { user: userId }) 필터링된 댓글 조회
+    return apiClient.get('/comments/', { params })
   },
 
   createCourseComment(courseId, data) {

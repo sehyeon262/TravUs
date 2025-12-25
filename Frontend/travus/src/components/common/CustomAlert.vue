@@ -1,11 +1,9 @@
 <template>
   <Transition name="modal">
-    <div v-if="modelValue" class="modal-overlay" @click="close">
+    <div v-if="modelValue" class="modal-overlay" @click="handleOverlayClick">
       <div class="modal-container" @click.stop>
-        <div class="modal-header">
-          <div class="icon-wrapper">
-            <i :class="iconClass"></i>
-          </div>
+        <div class="modal-icon">
+          <img src="@/assets/alert.png" alt="알림" />
         </div>
         <div class="modal-body">
           <h3 class="modal-title">{{ title }}</h3>
@@ -25,8 +23,6 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
-
 const props = defineProps({
   modelValue: {
     type: Boolean,
@@ -61,16 +57,6 @@ const props = defineProps({
 
 const emit = defineEmits(['update:modelValue', 'confirm', 'cancel'])
 
-const iconClass = computed(() => {
-  const icons = {
-    info: 'fa fa-info-circle',
-    warning: 'fa fa-exclamation-triangle',
-    error: 'fa fa-times-circle',
-    success: 'fa fa-check-circle'
-  }
-  return icons[props.type]
-})
-
 const close = () => {
   emit('update:modelValue', false)
   emit('cancel')
@@ -79,6 +65,13 @@ const close = () => {
 const confirm = () => {
   emit('update:modelValue', false)
   emit('confirm')
+}
+
+const handleOverlayClick = () => {
+  // showCancel이 true일 때만 오버레이 클릭으로 닫기 허용
+  if (props.showCancel) {
+    close()
+  }
 }
 </script>
 
@@ -89,7 +82,7 @@ const confirm = () => {
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.6);
+  background: rgba(0, 0, 0, 0.5);
   backdrop-filter: blur(4px);
   display: flex;
   align-items: center;
@@ -99,70 +92,63 @@ const confirm = () => {
 }
 
 .modal-container {
-  background: white;
-  border-radius: 20px;
-  max-width: 420px;
+  background: #667eea;
+  border-radius: 24px;
+  max-width: 400px;
   width: 100%;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
   overflow: hidden;
   animation: slideUp 0.3s ease;
+  padding: 2.5rem 2rem;
+  text-align: center;
 }
 
 @keyframes slideUp {
   from {
-    transform: translateY(30px);
+    transform: translateY(30px) scale(0.95);
     opacity: 0;
   }
   to {
-    transform: translateY(0);
+    transform: translateY(0) scale(1);
     opacity: 1;
   }
 }
 
-.modal-header {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  padding: 2rem 1.5rem 1rem;
-  text-align: center;
-}
-
-.icon-wrapper {
-  width: 80px;
-  height: 80px;
-  margin: 0 auto;
-  background: white;
-  border-radius: 50%;
+.modal-icon {
+  margin: 0 auto 1.5rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
 }
 
-.icon-wrapper i {
-  font-size: 2.5rem;
-  color: #667eea;
+.modal-icon img {
+  width: 120px;
+  height: 120px;
+  object-fit: contain;
+  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.2));
 }
 
 .modal-body {
-  padding: 2rem 1.5rem;
-  text-align: center;
+  margin-bottom: 2rem;
 }
 
 .modal-title {
   font-size: 1.5rem;
-  font-weight: 700;
-  color: #1a202c;
-  margin: 0 0 0.75rem 0;
+  font-weight: 800;
+  color: #ffffff;
+  margin: 0 0 1rem 0;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .modal-message {
-  font-size: 1rem;
-  color: #718096;
+  font-size: 1.05rem;
+  color: #ffffff;
   line-height: 1.6;
   margin: 0;
+  opacity: 0.95;
 }
 
 .modal-footer {
-  padding: 0 1.5rem 2rem;
   display: flex;
   gap: 0.75rem;
   flex-direction: column;
@@ -170,10 +156,10 @@ const confirm = () => {
 
 .btn-confirm,
 .btn-cancel {
-  padding: 0.875rem 1.5rem;
+  padding: 1rem 1.5rem;
   font-size: 1rem;
-  font-weight: 600;
-  border-radius: 12px;
+  font-weight: 700;
+  border-radius: 14px;
   border: none;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -181,14 +167,15 @@ const confirm = () => {
 }
 
 .btn-confirm {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+  background: #ffffff;
+  color: #667eea;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .btn-confirm:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+  background: #f8f9ff;
 }
 
 .btn-confirm:active {
@@ -196,14 +183,15 @@ const confirm = () => {
 }
 
 .btn-cancel {
-  background: #f7fafc;
-  color: #718096;
-  border: 1px solid #e2e8f0;
+  background: rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  backdrop-filter: blur(10px);
 }
 
 .btn-cancel:hover {
-  background: #edf2f7;
-  border-color: #cbd5e0;
+  background: rgba(255, 255, 255, 0.3);
+  border-color: rgba(255, 255, 255, 0.6);
 }
 
 /* 트랜지션 효과 */
@@ -219,37 +207,39 @@ const confirm = () => {
 
 .modal-enter-active .modal-container,
 .modal-leave-active .modal-container {
-  transition: transform 0.3s ease;
+  transition: transform 0.3s ease, opacity 0.3s ease;
 }
 
 .modal-enter-from .modal-container,
 .modal-leave-to .modal-container {
-  transform: scale(0.9);
+  transform: scale(0.9) translateY(20px);
+  opacity: 0;
 }
 
 /* 반응형 */
 @media (max-width: 480px) {
   .modal-container {
-    border-radius: 16px;
-    max-width: 100%;
-    margin: 0 1rem;
+    border-radius: 20px;
+    padding: 2rem 1.5rem;
   }
 
-  .icon-wrapper {
-    width: 64px;
-    height: 64px;
-  }
-
-  .icon-wrapper i {
-    font-size: 2rem;
+  .modal-icon img {
+    width: 80px;
+    height: 80px;
   }
 
   .modal-title {
-    font-size: 1.25rem;
+    font-size: 1.3rem;
   }
 
   .modal-message {
-    font-size: 0.9rem;
+    font-size: 0.95rem;
+  }
+
+  .btn-confirm,
+  .btn-cancel {
+    padding: 0.875rem 1.25rem;
+    font-size: 0.95rem;
   }
 }
 </style>

@@ -1,10 +1,18 @@
-import { ref, watch } from 'vue'
+import { ref, watch, onMounted } from 'vue'
+
+const TTS_STORAGE_KEY = 'travus-tts-enabled'
 
 /**
  * TTS(Text-to-Speech) 기능을 제공하는 Composable
  */
 export function useTTS() {
-  const isTTSEnabled = ref(true)
+  // localStorage에서 TTS 상태 불러오기 (기본값: true)
+  const loadTTSState = () => {
+    const saved = localStorage.getItem(TTS_STORAGE_KEY)
+    return saved !== null ? saved === 'true' : true
+  }
+
+  const isTTSEnabled = ref(loadTTSState())
   const isSpeaking = ref(false)
 
   // SpeechSynthesis 지원 확인
@@ -55,6 +63,8 @@ export function useTTS() {
    */
   const toggleTTS = () => {
     isTTSEnabled.value = !isTTSEnabled.value
+    // localStorage에 상태 저장
+    localStorage.setItem(TTS_STORAGE_KEY, isTTSEnabled.value.toString())
     if (!isTTSEnabled.value) {
       stop()
     }
@@ -65,6 +75,8 @@ export function useTTS() {
     if (!enabled) {
       stop()
     }
+    // 상태 변경 시 localStorage에 저장
+    localStorage.setItem(TTS_STORAGE_KEY, enabled.toString())
   })
 
   return {
