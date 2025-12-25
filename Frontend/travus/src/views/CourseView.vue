@@ -50,8 +50,6 @@
       @restart="restartCourse"
     />
 
-    <!-- Footer -->
-    <FooterSection v-if="currentStep !== 'result'" />
   </div>
 </template>
 
@@ -59,7 +57,6 @@
 import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import NavigationBar from '@/components/common/NavigationBar.vue'
-import FooterSection from '@/components/common/FooterSection.vue'
 import CourseStart from '@/components/course/CourseStart.vue'
 import RegionSelect from '@/components/course/RegionSelect.vue'
 import DurationSelect from '@/components/course/DurationSelect.vue'
