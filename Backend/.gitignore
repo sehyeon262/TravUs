@@ -267,3 +267,6 @@ pyrightconfig.json
 
 
 *.md
+
+# SQL dump files
+*.sql

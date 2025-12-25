@@ -313,9 +313,19 @@ const isTTSEnabled = ref(true)
 const synthesis = window.speechSynthesis
 
 const toggleTTS = () => {
+  const wasEnabled = isTTSEnabled.value
   isTTSEnabled.value = !isTTSEnabled.value
+
   if (!isTTSEnabled.value) {
+    // Cancel any ongoing speech when turning OFF
     synthesis.cancel()
+  } else if (!wasEnabled && isTTSEnabled.value) {
+    // Only speak confirmation when turning ON
+    synthesis.cancel()
+    const utterance = new SpeechSynthesisUtterance('TTS가 켜졌습니다')
+    utterance.lang = 'ko-KR'
+    utterance.rate = 0.9
+    synthesis.speak(utterance)
   }
 }
 
@@ -459,7 +469,6 @@ const loadDestinations = async () => {
   loading.value = true
 
   try {
-    console.log('📍 DB에서 여행지 목록 조회')
 
     // DB에서 여행지 목록 가져오기
     const params = {
@@ -495,7 +504,6 @@ const loadDestinations = async () => {
     }
 
     const response = await api.getTravelSpots(params)
-    console.log('✅ DB 응답:', response.data)
 
     if (response.data) {
       // DB 응답을 기존 API 형식에 맞게 매핑
@@ -518,7 +526,6 @@ const loadDestinations = async () => {
 
       destinations.value = results
       totalCount.value = response.data.count || results.length
-      console.log(`✅ ${results.length}개 여행지 로드 완료`)
     }
   } catch (error) {
     console.error('❌ 데이터 로드 실패:', error)
@@ -603,13 +610,11 @@ const handleCardClick = (destination) => {
 
 // 북마크 상태 변경 핸들러
 const handleBookmarkChanged = ({ id, bookmarked }) => {
-  console.log('🔖 북마크 변경됨:', id, bookmarked)
 
   // destinations 배열에서 해당 항목 찾아서 업데이트
   const index = destinations.value.findIndex(dest => dest.id === id)
   if (index !== -1) {
     destinations.value[index].is_bookmarked = bookmarked
-    console.log('✅ 목록 업데이트 완료')
   }
 }
 

@@ -39,3 +39,6 @@ __screenshots__/
 # Files
 *.pdf
 *.md
+
+*.env
+.env

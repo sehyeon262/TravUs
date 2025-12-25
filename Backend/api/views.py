@@ -1084,9 +1084,13 @@ class ReviewViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         queryset = Review.objects.all()
         travel_spot_id = self.request.query_params.get('travel_spot')
+        user_id = self.request.query_params.get('user')
 
         if travel_spot_id:
             queryset = queryset.filter(travel_spot_id=travel_spot_id)
+
+        if user_id:
+            queryset = queryset.filter(user_id=user_id)
 
         return queryset.select_related('user', 'travel_spot').order_by('-created_at')
 

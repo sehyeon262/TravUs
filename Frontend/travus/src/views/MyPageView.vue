@@ -29,6 +29,9 @@
         </div>
 
         <div class="sidebar-footer">
+          <button class="edit-profile-btn" @click="openEditModal" @focus="handleFocus">
+            회원정보 수정
+          </button>
           <button class="withdraw-link" @click="handleWithdraw" @focus="handleFocus">
             회원 탈퇴
           </button>
@@ -161,7 +164,7 @@
                 v-for="course in likedCourses"
                 :key="course.id"
                 class="list-item"
-                @click="goToCourse(course.course_id || course.id)"
+                @click="goToCourse(course.course_id)"
               >
                 <img :src="course.image || 'https://via.placeholder.com/100x100'" :alt="course.title" class="item-image" />
                 <div class="item-info">
@@ -189,7 +192,7 @@
                 v-for="comment in courseComments"
                 :key="comment.id"
                 class="list-item"
-                @click="goToCourse(comment.course || comment.course_id)"
+                @click="goToCourse(comment.course)"
               >
                 <div class="item-icon">💭</div>
                 <div class="item-info">
@@ -208,6 +211,88 @@
         </div>
       </main>
     </div>
+
+    <!-- 회원정보 수정 모달 -->
+    <div v-if="showEditModal" class="modal-overlay" @click="showEditModal = false">
+      <div class="modal-content" @click.stop>
+        <div class="modal-header">
+          <h2>회원정보 수정</h2>
+          <button class="modal-close-btn" @click="showEditModal = false">×</button>
+        </div>
+        <div class="modal-body">
+          <div class="form-group">
+            <label>이름</label>
+            <div class="name-inputs">
+              <input
+                v-model="editForm.last_name"
+                type="text"
+                placeholder="성"
+                class="form-input half"
+                @focus="handleFocus"
+              />
+              <input
+                v-model="editForm.first_name"
+                type="text"
+                placeholder="이름"
+                class="form-input half"
+                @focus="handleFocus"
+              />
+            </div>
+          </div>
+          <div class="form-group">
+            <label>이메일</label>
+            <input
+              v-model="editForm.email"
+              type="email"
+              placeholder="example@email.com"
+              class="form-input"
+              @focus="handleFocus"
+            />
+          </div>
+          <div class="form-group">
+            <label>전화번호</label>
+            <input
+              v-model="editForm.phone"
+              type="tel"
+              placeholder="010-0000-0000"
+              class="form-input"
+              @focus="handleFocus"
+            />
+          </div>
+          <div class="form-group">
+            <label>비밀번호 변경 (선택)</label>
+            <input
+              v-model="editForm.password"
+              type="password"
+              placeholder="새 비밀번호 (변경 시에만 입력)"
+              class="form-input"
+              @focus="handleFocus"
+            />
+          </div>
+          <div class="form-group">
+            <label>비밀번호 확인</label>
+            <input
+              v-model="editForm.password_confirm"
+              type="password"
+              placeholder="비밀번호 확인"
+              class="form-input"
+              @focus="handleFocus"
+            />
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn-cancel" @click="showEditModal = false" @focus="handleFocus">
+            취소
+          </button>
+          <button class="btn-save" @click="handleSaveProfile" @focus="handleFocus">
+            저장
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <FooterSection @focus="handleFocus" />
   </div>
 </template>
 
@@ -215,6 +300,7 @@
 import { computed, ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import NavigationBar from '@/components/common/NavigationBar.vue'
+import FooterSection from '@/components/common/FooterSection.vue'
 import { useAuthStore } from '@/stores/auth'
 import { useTTS } from '@/composables/useTTS'
 import api from '@/services/api'
@@ -274,6 +360,30 @@ const myCourses = ref([])
 const likedCourses = ref([])
 const courseComments = ref([])
 
+// 회원정보 수정 모달
+const showEditModal = ref(false)
+const editForm = ref({
+  last_name: '',
+  first_name: '',
+  email: '',
+  phone: '',
+  password: '',
+  password_confirm: ''
+})
+
+// 모달 열 때 현재 사용자 정보 채우기
+const openEditModal = () => {
+  editForm.value = {
+    last_name: user.value?.last_name || '',
+    first_name: user.value?.first_name || '',
+    email: user.value?.email || '',
+    phone: user.value?.phone || '',
+    password: '',
+    password_confirm: ''
+  }
+  showEditModal.value = true
+}
+
 // 필터링된 북마크
 const filteredBookmarks = computed(() => {
   if (activeRegion.value === 'all') {
@@ -299,12 +409,17 @@ onMounted(async () => {
 // 사용자 데이터 로드
 const loadUserData = async () => {
   try {
-    // 북마크 로드
+    if (!user.value?.id) {
+      console.error('사용자 정보가 없습니다.')
+      return
+    }
+
+
+    // 북마크 로드 - 백엔드가 자동으로 현재 사용자 필터링
     const bookmarksResponse = await api.getBookmarks()
-    console.log('북마크 데이터:', bookmarksResponse.data)
     bookmarks.value = (bookmarksResponse.data.results || bookmarksResponse.data || []).map(b => ({
       id: b.id,
-      travel_spot_id: b.travel_spot?.id || b.travel_spot,
+      travel_spot_id: b.travel_spot?.content_id || b.content_id,  // content_id for routing
       name: b.travel_spot?.name || b.travel_spot_name || '여행지',
       address: b.travel_spot?.address || b.address || '',
       image: b.travel_spot?.image_url || b.image_url,
@@ -312,50 +427,73 @@ const loadUserData = async () => {
       created_at: b.created_at
     }))
 
-    // 여행지 댓글 로드
+    // 여행지 댓글 로드 - 현재 사용자의 댓글만 필터링
     const reviewsResponse = await api.getReviews({ user: user.value.id })
-    console.log('여행지 댓글 데이터:', reviewsResponse.data)
-    travelReviews.value = (reviewsResponse.data.results || reviewsResponse.data || []).map(r => ({
+    const reviewsData = reviewsResponse.data.results || reviewsResponse.data || []
+    travelReviews.value = reviewsData.map(r => ({
       id: r.id,
-      travel_spot: r.travel_spot,
+      travel_spot: r.content_id,  // content_id from backend for routing
       spot_name: r.travel_spot_name || '여행지',
       content: r.content,
       created_at: r.created_at
     }))
 
-    // 내 코스 로드
-    const coursesResponse = await api.getCourses({ user: user.value.id })
-    console.log('내 코스 데이터:', coursesResponse.data)
-    myCourses.value = (coursesResponse.data.results || coursesResponse.data || []).map(c => ({
+    // 내 코스 로드 - 전용 엔드포인트 사용
+    const coursesResponse = await api.getMyCourses()
+    const coursesData = coursesResponse.data.results || coursesResponse.data || []
+    myCourses.value = coursesData.map(c => ({
       id: c.id,
       title: c.title,
-      spots_count: c.spots?.length || c.spots_count || 0,
-      image: c.image_url,
+      spots_count: c.course_spots?.length || c.spots_count || 0,
+      image: c.course_spots?.[0]?.travel_spot?.image_url || c.image_url,
       created_at: c.created_at
     }))
 
-    // 좋아요한 코스 로드
-    const likedCoursesResponse = await api.getLikedCourses()
-    console.log('좋아요한 코스 데이터:', likedCoursesResponse.data)
-    likedCourses.value = (likedCoursesResponse.data.results || likedCoursesResponse.data || []).map(l => ({
-      id: l.id,
-      course_id: l.course?.id || l.course,
-      title: l.course?.title || l.course_title || '코스',
-      spots_count: l.course?.spots?.length || l.course_spots_count || 0,
-      image: l.course?.image_url,
-      created_at: l.created_at
-    }))
+    // 좋아요한 코스 로드 - 전용 엔드포인트 사용
+    try {
+      const likedCoursesResponse = await api.getLikedCourses()
+      const likedData = likedCoursesResponse.data.results || likedCoursesResponse.data || []
 
-    // 코스 댓글 로드
-    const courseCommentsResponse = await api.getCourseComments({ user: user.value.id })
-    console.log('코스 댓글 데이터:', courseCommentsResponse.data)
-    courseComments.value = (courseCommentsResponse.data.results || courseCommentsResponse.data || []).map(c => ({
-      id: c.id,
-      course: c.course?.id || c.course,
-      course_title: c.course?.title || c.course_title || '코스',
-      content: c.content,
-      created_at: c.created_at
-    }))
+      likedCourses.value = likedData.map(l => {
+        // l.course is the full course object from getLikedCourses
+        const course = l.course || l
+        const courseSpots = course.course_spots || []
+        const firstSpotImage = courseSpots[0]?.travel_spot?.image_url || courseSpots[0]?.image_url
+
+        return {
+          id: l.id,  // like id
+          course_id: course.id,  // actual course id for routing
+          title: course.title || '코스',
+          spots_count: courseSpots.length || 0,
+          image: firstSpotImage || 'https://via.placeholder.com/100x100',
+          created_at: l.created_at || course.created_at
+        }
+      })
+    } catch (error) {
+      console.error('좋아요한 코스 로드 실패:', error)
+      console.error('에러 응답:', error.response?.data)
+      likedCourses.value = []
+    }
+
+    // 코스 댓글 로드 - 사용자의 모든 댓글 가져오기
+    try {
+      const courseCommentsResponse = await api.getUserCourseComments(user.value.id)
+      const commentsData = courseCommentsResponse.data || []
+
+      courseComments.value = commentsData.map(c => {
+        return {
+          id: c.id,
+          course: c.course_id,  // course_id is added by getUserCourseComments
+          course_title: c.course_title || '코스',  // course_title is added by getUserCourseComments
+          content: c.content || c.text || '',
+          created_at: c.created_at
+        }
+      })
+    } catch (error) {
+      console.error('코스 댓글 로드 실패:', error)
+      console.error('에러 응답:', error.response?.data)
+      courseComments.value = []
+    }
   } catch (error) {
     console.error('데이터 로드 실패:', error)
     console.error('에러 상세:', error.response?.data)
@@ -405,6 +543,46 @@ const goToCourse = async (courseId) => {
     return
   }
   router.push(`/course/${courseId}`)
+}
+
+const handleSaveProfile = async () => {
+  try {
+    // 비밀번호 확인
+    if (editForm.value.password && editForm.value.password !== editForm.value.password_confirm) {
+      await alert('비밀번호가 일치하지 않습니다.')
+      return
+    }
+
+    // 업데이트할 데이터 준비
+    const updateData = {
+      last_name: editForm.value.last_name,
+      first_name: editForm.value.first_name,
+      email: editForm.value.email,
+      phone: editForm.value.phone
+    }
+
+    // 비밀번호가 입력된 경우에만 추가
+    if (editForm.value.password) {
+      updateData.password = editForm.value.password
+    }
+
+    // API 호출
+    await api.updateProfile(updateData)
+
+    // 사용자 정보 다시 로드
+    const userResponse = await api.getCurrentUser()
+    authStore.setUser(userResponse.data)
+
+    await alert('회원정보가 수정되었습니다.')
+    showEditModal.value = false
+
+    // 비밀번호 필드 초기화
+    editForm.value.password = ''
+    editForm.value.password_confirm = ''
+  } catch (error) {
+    console.error('회원정보 수정 실패:', error)
+    await alert('회원정보 수정에 실패했습니다.')
+  }
 }
 
 const handleWithdraw = async () => {
@@ -524,6 +702,28 @@ const handleFocus = (payload) => {
 .sidebar-footer {
   padding-top: 2rem;
   border-top: 2px solid #e5e7eb;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.edit-profile-btn {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background: #667eea;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.edit-profile-btn:hover {
+  background: #5568d3;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
 }
 
 .withdraw-link {
@@ -536,10 +736,151 @@ const handleFocus = (payload) => {
   padding: 0;
   text-decoration: underline;
   transition: color 0.2s ease;
+  text-align: center;
 }
 
 .withdraw-link:hover {
   color: #b91c1c;
+}
+
+/* 모달 스타일 */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: white;
+  border-radius: 16px;
+  width: 90%;
+  max-width: 500px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+.modal-header {
+  padding: 1.5rem 2rem;
+  border-bottom: 2px solid #e5e7eb;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal-header h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #111827;
+}
+
+.modal-close-btn {
+  background: none;
+  border: none;
+  font-size: 2rem;
+  color: #6b7280;
+  cursor: pointer;
+  padding: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+}
+
+.modal-close-btn:hover {
+  background: #f3f4f6;
+  color: #111827;
+}
+
+.modal-body {
+  padding: 2rem;
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-group label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 0.5rem;
+}
+
+.name-inputs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+.form-input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 2px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: all 0.2s ease;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.form-input.half {
+  width: 100%;
+}
+
+.modal-footer {
+  padding: 1.5rem 2rem;
+  border-top: 2px solid #e5e7eb;
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+}
+
+.btn-cancel,
+.btn-save {
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-cancel {
+  background: #f3f4f6;
+  color: #374151;
+  border: none;
+}
+
+.btn-cancel:hover {
+  background: #e5e7eb;
+}
+
+.btn-save {
+  background: #667eea;
+  color: white;
+  border: none;
+}
+
+.btn-save:hover {
+  background: #5568d3;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
 }
 
 /* 오른쪽 컨텐츠 영역 */

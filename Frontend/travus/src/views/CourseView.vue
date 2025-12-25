@@ -49,6 +49,9 @@
       :course-data="generatedCourse"
       @restart="restartCourse"
     />
+
+    <!-- Footer -->
+    <FooterSection v-if="currentStep !== 'result'" />
   </div>
 </template>
 
@@ -56,6 +59,7 @@
 import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import NavigationBar from '@/components/common/NavigationBar.vue'
+import FooterSection from '@/components/common/FooterSection.vue'
 import CourseStart from '@/components/course/CourseStart.vue'
 import RegionSelect from '@/components/course/RegionSelect.vue'
 import DurationSelect from '@/components/course/DurationSelect.vue'
@@ -215,7 +219,6 @@ const generateCourse = async (themes) => {
       return
     }
 
-    console.log('AI 코스 생성 요청:', { region: regionName, area_code: areaCode, duration: selectedDuration.value.name })
 
     // AI 코스 생성 API 호출
     const response = await api.generateAICourse({

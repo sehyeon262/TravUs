@@ -227,8 +227,14 @@ const passwordConfirmError = ref(false)
 let usernameCheckTimeout = null
 
 const toggleTTS = () => {
+  const wasEnabled = isTTSEnabled.value
   ttsToggle()
-  speak(isTTSEnabled.value ? 'TTS가 켜졌습니다' : 'TTS가 꺼졌습니다')
+
+  // Only speak if we just turned TTS ON (wasEnabled was false, now it's true)
+  if (!wasEnabled && isTTSEnabled.value) {
+    speak('TTS가 켜졌습니다')
+  }
+  // Silent when turning OFF
 }
 
 const handleFocus = (payload) => {
@@ -386,14 +392,6 @@ const handleSubmit = async () => {
     // 백엔드 회원가입 API 호출
     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api'
 
-    console.log('회원가입 요청 데이터:', {
-      username: form.username.trim(),
-      name: form.name,
-      phone: form.phone,
-      email: email,
-      birth: birth
-    })
-
     const response = await axios.post(`${API_BASE_URL}/auth/signup/`, {
       username: form.username.trim(),
       password: form.password,
@@ -404,7 +402,6 @@ const handleSubmit = async () => {
       gender: ''  // 성별 선택 제거됨
     })
 
-    console.log('회원가입 응답 데이터:', response.data)
 
     // 회원가입 성공 시 자동 로그인 처리
     if (response.data && response.data.tokens && response.data.user) {
@@ -412,19 +409,16 @@ const handleSubmit = async () => {
       localStorage.setItem('access_token', response.data.tokens.access)
       localStorage.setItem('refresh_token', response.data.tokens.refresh)
 
-      console.log('토큰 저장 완료')
 
       // 사용자 정보를 store에 저장
       authStore.setUser(response.data.user)
       authStore.setToken(response.data.tokens.access)
 
-      console.log('Store 업데이트 완료, isLoggedIn:', authStore.isLoggedIn)
 
       speak('회원가입이 완료되었습니다. 자동으로 로그인됩니다.')
 
       // 약간의 딜레이 후 홈으로 이동
       setTimeout(() => {
-        console.log('홈으로 이동')
         router.push('/')
       }, 500)
     } else {

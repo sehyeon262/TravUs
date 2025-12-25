@@ -73,7 +73,7 @@
 
           <!-- Day 헤더 -->
           <div class="day-header">
-            <h3>Day {{ currentDay }}</h3>
+            <h3>{{ currentDay === -1 ? '전체 일정' : `Day ${currentDay}` }}</h3>
           </div>
 
           <!-- 장소 리스트 - 레퍼런스 그대로 (세로 스크롤) -->
@@ -175,7 +175,7 @@
 
         <!-- 우측 하단: 다시뽑기 버튼 - 레퍼런스 그대로 위치 -->
         <div class="map-footer">
-          <button class="btn-regenerate">
+          <button class="btn-regenerate" @click="emit('restart')">
             <i class="fa fa-refresh"></i>
             <span>추천코스가 마음에 들지 않나요?</span>
             <strong>다시뽑기</strong>
@@ -407,18 +407,15 @@ const loadKakaoMapScript = () => {
   return new Promise((resolve, reject) => {
     // 이미 로드되어 있으면 바로 리턴
     if (window.kakao && window.kakao.maps) {
-      console.log('✅ 카카오맵 이미 로드됨')
       resolve()
       return
     }
 
     const apiKey = import.meta.env.VITE_KAKAO_MAP_API_KEY
-    console.log('📡 카카오맵 스크립트 로딩 시작, API 키:', apiKey)
 
     // 기존 스크립트 확인
     const existingScript = document.querySelector('script[src*="dapi.kakao.com"]')
     if (existingScript) {
-      console.log('⚠️ 기존 카카오맵 스크립트 제거')
       existingScript.remove()
     }
 
@@ -427,10 +424,8 @@ const loadKakaoMapScript = () => {
     script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=${apiKey}&autoload=false`
 
     script.onload = () => {
-      console.log('✅ 카카오맵 스크립트 다운로드 완료')
       if (window.kakao && window.kakao.maps) {
         window.kakao.maps.load(() => {
-          console.log('✅ 카카오맵 API 초기화 완료')
           resolve()
         })
       } else {
@@ -445,7 +440,6 @@ const loadKakaoMapScript = () => {
     }
 
     document.head.appendChild(script)
-    console.log('📄 스크립트 태그 추가됨:', script.src)
   })
 }
 
@@ -457,9 +451,6 @@ const initializeKakaoMap = () => {
     return
   }
 
-  console.log('✅ 카카오맵 컨테이너 발견:', container)
-  console.log('✅ window.kakao 존재:', !!window.kakao)
-  console.log('✅ window.kakao.maps 존재:', !!window.kakao?.maps)
 
   const options = {
     center: new window.kakao.maps.LatLng(37.5665, 126.9780), // 서울시청
@@ -467,7 +458,6 @@ const initializeKakaoMap = () => {
   }
 
   kakaoMap.value = new window.kakao.maps.Map(container, options)
-  console.log('✅ 카카오맵 초기화 완료:', kakaoMap.value)
 
   // 기본 마커 하나 추가 (테스트용)
   const markerPosition = new window.kakao.maps.LatLng(37.5665, 126.9780)
@@ -475,7 +465,6 @@ const initializeKakaoMap = () => {
     position: markerPosition
   })
   marker.setMap(kakaoMap.value)
-  console.log('✅ 테스트 마커 추가 완료')
 }
 
 // 마커 색상 매핑
@@ -486,8 +475,6 @@ const getMarkerColor = (dayIndex) => {
 
 // 지도에 마커 및 경로 추가
 const updateMapMarkers = () => {
-  console.log('🗺️ updateMapMarkers 호출')
-  console.log('📍 itineraryDays:', itineraryDays.value)
 
   if (!kakaoMap.value || !itineraryDays.value.length) {
     console.warn('⚠️ 지도 또는 itineraryDays가 없음')
@@ -508,17 +495,14 @@ const updateMapMarkers = () => {
     ? itineraryDays.value
     : [itineraryDays.value[currentDay.value - 1]]
 
-  console.log('📅 표시할 날짜:', daysToShow)
 
   let globalIndex = 0
 
   daysToShow.forEach((day, dayIndex) => {
     const actualDayIndex = currentDay.value === -1 ? dayIndex : (currentDay.value - 1)
 
-    console.log(`📍 Day ${dayIndex + 1} places:`, day.places)
 
     day.places.forEach((place, placeIndex) => {
-      console.log(`  - Place ${placeIndex + 1}:`, place.name, place.latitude, place.longitude)
 
       if (!place.latitude || !place.longitude) {
         console.warn(`  ⚠️ ${place.name}: 좌표 없음`)
@@ -628,13 +612,10 @@ const loadComments = async () => {
   try {
     // savedCourseId 사용 (자동 저장된 코스 ID)
     if (!savedCourseId.value) {
-      console.log('⚠️ savedCourseId가 없어서 댓글을 불러올 수 없습니다.')
       return
     }
 
-    console.log('📝 댓글 불러오기 시도:', savedCourseId.value)
     const response = await api.getCourseComments(savedCourseId.value)
-    console.log('✅ 댓글 응답:', response.data)
 
     // 응답이 배열인지 확인
     if (Array.isArray(response.data)) {
@@ -647,7 +628,6 @@ const loadComments = async () => {
       comments.value = []
     }
 
-    console.log(`✅ ${comments.value.length}개 댓글 로드 완료`)
   } catch (error) {
     console.error('❌ 댓글 로드 실패:', error)
     comments.value = []
@@ -716,7 +696,6 @@ const formatDate = (dateString) => {
 const autoSaveCourse = async () => {
   // 이미 저장된 코스 조회인 경우 (courseData.id가 있으면 조회 모드)
   if (props.courseData.id) {
-    console.log('이미 저장된 코스 조회 모드 - 자동 저장 건너뜀')
     savedCourseId.value = props.courseData.id
     // 기존 코스의 좋아요 상태만 로드
     await loadLikeStatus()
@@ -738,6 +717,8 @@ const autoSaveCourse = async () => {
         spots.push({
           travel_spot_id: item.id,
           order: item.order || index + 1,
+          day: item.day || 1,
+          type: item.type || 'travel',
           memo: '',
           stay_duration: null
         })
@@ -751,14 +732,12 @@ const autoSaveCourse = async () => {
       spots: spots
     }
 
-    console.log('저장할 코스 데이터:', courseData)
 
     // Course 저장
     const courseResponse = await api.saveCourse(courseData)
     const savedCourse = courseResponse.data
 
     savedCourseId.value = savedCourse.id
-    console.log('코스 자동 저장 성공:', savedCourse)
 
     // 저장 후 좋아요 상태 로드
     await loadLikeStatus()
@@ -768,7 +747,6 @@ const autoSaveCourse = async () => {
     console.error('에러 상세:', error.response?.data)
 
     if (error.response?.status === 401) {
-      console.log('로그인 필요 - 자동 저장 건너뜀')
     }
   } finally {
     isAutoSaving.value = false
@@ -836,7 +814,6 @@ const loadAIGeneratedData = () => {
   try {
     isLoading.value = true
 
-    console.log('📦 courseData:', props.courseData)
 
     // props.courseData.days 사용 (AI가 생성한 데이터 또는 조회한 데이터)
     if (props.courseData.days && props.courseData.days.length > 0) {
@@ -847,13 +824,11 @@ const loadAIGeneratedData = () => {
           const spotData = spot.spot || spot
 
           // 디버깅: 실제 spotData 구조 확인
-          console.log('🔍 spotData 구조:', spotData)
 
           // 좌표 필드명 확인 (latitude/longitude 또는 mapy/mapx)
           const lat = spotData.latitude || spotData.mapy
           const lng = spotData.longitude || spotData.mapx
 
-          console.log(`📍 ${spotData.name}: lat=${lat}, lng=${lng}`)
 
           return {
             id: spotData.id, // TravelSpot의 실제 DB ID
@@ -870,7 +845,6 @@ const loadAIGeneratedData = () => {
         })
       }))
 
-      console.log('✅ 데이터 로드 완료:', itineraryDays.value)
     } else {
       console.warn('⚠️ 생성 데이터가 없습니다')
       useSampleData()
@@ -936,27 +910,20 @@ const useSampleData = () => {
 // 초기화
 onMounted(async () => {
   try {
-    console.log('🚀 CourseResult 초기화 시작')
-    console.log('📍 API 키:', import.meta.env.VITE_KAKAO_MAP_API_KEY)
 
     await loadKakaoMapScript()
-    console.log('✅ 카카오맵 스크립트 로드 완료')
 
     initializeKakaoMap()
-    console.log('✅ 카카오맵 초기화 완료')
 
     loadAIGeneratedData()
-    console.log('✅ AI 데이터 로드 완료')
 
     updateMapMarkers()
-    console.log('✅ 마커 업데이트 완료')
 
     // 사용자 정보 로드
     try {
       const userResponse = await api.getCurrentUser()
       currentUser.value = userResponse.data
     } catch (error) {
-      console.log('사용자 정보 없음 (로그인 필요)')
     }
 
     // 자동 저장 (코스 생성 시 자동으로 저장)

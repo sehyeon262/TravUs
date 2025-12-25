@@ -131,8 +131,14 @@ const resetSuccess = ref(false)
 const isResetting = ref(false)
 
 const toggleTTS = () => {
+  const wasEnabled = isTTSEnabled.value
   ttsToggle()
-  speak(isTTSEnabled.value ? 'TTS가 켜졌습니다' : 'TTS가 꺼졌습니다')
+
+  // Only speak if we just turned TTS ON (wasEnabled was false, now it's true)
+  if (!wasEnabled && isTTSEnabled.value) {
+    speak('TTS가 켜졌습니다')
+  }
+  // Silent when turning OFF
 }
 
 const closePasswordResetModal = () => {

@@ -249,15 +249,22 @@ const handleImageError = (e) => {
 
 // 날짜 포맷
 const formatDate = (dateString) => {
+  if (!dateString) return '-'
+
   const date = new Date(dateString)
+  if (isNaN(date.getTime())) return '-'
+
   const now = new Date()
   const diffMs = now - date
-  const diffDays = diffMs / 86400000
+  const diffDays = Math.floor(diffMs / 86400000)
 
-  if (diffDays < 1) return '오늘'
-  if (diffDays < 2) return '어제'
-  if (diffDays < 7) return diffDays.toFixed(0) + '일 전'
-  if (diffDays < 30) return (diffDays / 7).toFixed(0) + '주 전'
+  // 미래 날짜는 그대로 표시
+  if (diffDays < 0) return date.toLocaleDateString('ko-KR')
+
+  if (diffDays === 0) return '오늘'
+  if (diffDays === 1) return '어제'
+  if (diffDays < 7) return diffDays + '일 전'
+  if (diffDays < 30) return Math.floor(diffDays / 7) + '주 전'
 
   return date.toLocaleDateString('ko-KR')
 }

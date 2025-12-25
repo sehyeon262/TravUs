@@ -129,7 +129,6 @@ const handleBookmark = async (destination) => {
       destinations.value[index].is_bookmarked = response.data.bookmarked
     }
 
-    console.log(response.data.bookmarked ? '✅ 북마크 추가' : '❌ 북마크 삭제')
   } catch (error) {
     console.error('❌ 북마크 토글 실패:', error)
     alert('북마크 처리에 실패했습니다.')
@@ -216,7 +215,6 @@ const nextSlide = () => {
 // DB에서 관광지 데이터 가져오기
 const fetchDestinations = async () => {
   try {
-    console.log('📍 DB에서 추천 여행지 조회')
 
     // 랜덤 offset 생성 (0~900 범위에서 랜덤하게 시작)
     const randomOffset = Math.floor(Math.random() * 900)
@@ -254,7 +252,6 @@ const fetchDestinations = async () => {
       }
 
       destinations.value = shuffled.slice(0, 10)
-      console.log(`✅ ${destinations.value.length}개 추천 여행지 로드 완료 (offset: ${randomOffset})`)
     }
   } catch (error) {
     console.error('❌ 추천 여행지 로드 실패:', error)

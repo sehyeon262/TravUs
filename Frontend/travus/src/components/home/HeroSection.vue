@@ -85,6 +85,7 @@ const content = {
 
 const currentSlide = ref(0)
 const isPlaying = ref(true)
+const isImagesLoaded = ref(false)
 let slideInterval = null
 
 const nextSlide = () => {
@@ -108,7 +109,6 @@ const toggleAutoPlay = () => {
 }
 
 const handleCTA = () => {
-  console.log('CTA clicked:', slides.value[currentSlide.value].ctaText)
   // 실제 동작 추가 가능
 }
 
@@ -120,12 +120,34 @@ const handleFocus = (event) => {
   emit('focus', text)
 }
 
-onMounted(() => {
+// 이미지 프리로드 최적화 - 첫 번째 이미지 우선 로딩
+const preloadImages = async () => {
+  try {
+    // 첫 번째 이미지를 우선 로드
+    const firstImg = new Image()
+    await new Promise((resolve, reject) => {
+      firstImg.onload = resolve
+      firstImg.onerror = reject
+      firstImg.src = images.value[0]
+    })
+
+    // 첫 번째 이미지 로드 완료
+    isImagesLoaded.value = true
+
+    // 나머지 이미지는 백그라운드에서 로드
+    images.value.slice(1).forEach((src) => {
+      const img = new Image()
+      img.src = src
+    })
+  } catch (error) {
+    console.error('이미지 로드 실패:', error)
+    isImagesLoaded.value = true // 에러가 나도 컨텐츠는 보여줌
+  }
+}
+
+onMounted(async () => {
   // 이미지 미리 로드
-  images.value.forEach((src) => {
-    const img = new Image()
-    img.src = src
-  })
+  await preloadImages()
 
   // 자동 슬라이드 (10초마다)
   slideInterval = setInterval(nextSlide, 10000)
@@ -165,6 +187,10 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   justify-content: flex-start;
+  /* GPU 가속 및 성능 최적화 */
+  will-change: opacity;
+  transform: translateZ(0);
+  backface-visibility: hidden;
 }
 
 .hero-overlay {
@@ -190,6 +216,10 @@ onUnmounted(() => {
   max-width: 800px;
   margin-left: 5%;
   animation: fadeInUp 0.8s ease-out;
+  /* GPU 가속을 위한 속성 추가 */
+  will-change: opacity, transform;
+  transform: translateZ(0);
+  backface-visibility: hidden;
 }
 
 .hero-badge {
@@ -357,11 +387,17 @@ onUnmounted(() => {
 
 /* 페이드 트랜지션 - 크로스페이드로 빠르게 전환 */
 .fade-enter-active {
-  transition: opacity 0.5s ease-in;
+  transition: opacity 0.6s ease-in-out;
+  /* GPU 가속 */
+  transform: translateZ(0);
+  will-change: opacity;
 }
 
 .fade-leave-active {
-  transition: opacity 0.5s ease-out;
+  transition: opacity 0.6s ease-in-out;
+  /* GPU 가속 */
+  transform: translateZ(0);
+  will-change: opacity;
 }
 
 .fade-enter-from {

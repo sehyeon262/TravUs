@@ -203,6 +203,17 @@ class CourseSpot(models.Model):
         verbose_name='여행지'
     )
     order = models.IntegerField(verbose_name='순서')
+    day = models.IntegerField(default=1, verbose_name='일차')
+    spot_type = models.CharField(
+        max_length=20,
+        default='travel',
+        choices=[
+            ('travel', '여행지'),
+            ('restaurant', '음식점'),
+            ('accommodation', '숙박')
+        ],
+        verbose_name='장소 타입'
+    )
     memo = models.TextField(blank=True, null=True, verbose_name='메모')
     stay_duration = models.IntegerField(
         null=True,

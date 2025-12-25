@@ -201,9 +201,34 @@ export default {
     return apiClient.get('/courses/my_courses/')
   },
 
-  // 좋아요한 코스 조회
-  getLikedCourses() {
-    return apiClient.get('/courses/liked_courses/')
+  // 좋아요한 코스 조회 (백엔드에 전용 엔드포인트가 없으므로 클라이언트에서 처리)
+  async getLikedCourses() {
+    try {
+      // 모든 코스를 가져와서 좋아요 여부 확인
+      const coursesResponse = await this.getCourses()
+      const courses = coursesResponse.data.results || coursesResponse.data || []
+
+      // 각 코스의 좋아요 상태 확인
+      const likedCourses = []
+      for (const course of courses) {
+        try {
+          const likeStatusResponse = await this.getCourseLikeStatus(course.id)
+          if (likeStatusResponse.data.is_liked) {
+            likedCourses.push({
+              id: course.id,
+              course: course,
+              created_at: new Date().toISOString() // 좋아요 날짜는 알 수 없으므로 현재 시간
+            })
+          }
+        } catch (err) {
+          console.warn(`코스 ${course.id}의 좋아요 상태 확인 실패:`, err)
+        }
+      }
+      return { data: likedCourses }
+    } catch (error) {
+      console.error('좋아요한 코스 조회 실패:', error)
+      return { data: [] }
+    }
   },
 
   // 월간 Best 30 코스
@@ -235,10 +260,15 @@ export default {
     return apiClient.get(`/courses/${courseId}/like_status/`)
   },
 
-  getReviews(travelSpotId) {
-    return apiClient.get('/reviews/', {
-      params: { travel_spot: travelSpotId }
-    })
+  getReviews(params = {}) {
+    // params가 숫자인 경우 travelSpotId로 간주
+    if (typeof params === 'number' || (typeof params === 'string' && !isNaN(params))) {
+      return apiClient.get('/reviews/', {
+        params: { travel_spot: params }
+      })
+    }
+    // params가 객체인 경우 (예: { user: userId, travel_spot: spotId }) 필터링
+    return apiClient.get('/reviews/', { params })
   },
 
   createReview(data) {
@@ -262,14 +292,42 @@ export default {
     })
   },
 
-  // 코스 댓글 관련
-  getCourseComments(params = {}) {
-    // params가 숫자(courseId)인 경우 특정 코스의 댓글 조회
-    if (typeof params === 'number' || (typeof params === 'string' && !isNaN(params))) {
-      return apiClient.get(`/courses/${params}/comments/`)
+  // 사용자의 모든 코스 댓글 조회 (백엔드에 전용 엔드포인트가 없으므로 클라이언트에서 처리)
+  async getUserCourseComments(userId) {
+    try {
+      // 모든 코스를 가져와서 댓글 확인
+      const coursesResponse = await this.getCourses()
+      const courses = coursesResponse.data.results || coursesResponse.data || []
+
+      // 각 코스의 댓글을 가져와서 사용자 댓글만 필터링
+      const allComments = []
+      for (const course of courses) {
+        try {
+          const commentsResponse = await this.getCourseComments(course.id)
+          const comments = commentsResponse.data.results || commentsResponse.data || []
+          const userComments = comments.filter(c => c.user === userId || c.user?.id === userId)
+          userComments.forEach(c => {
+            allComments.push({
+              ...c,
+              course_id: course.id,
+              course_title: course.title
+            })
+          })
+        } catch (err) {
+          console.warn(`코스 ${course.id}의 댓글 로드 실패:`, err)
+        }
+      }
+      return { data: allComments }
+    } catch (error) {
+      console.error('사용자 댓글 조회 실패:', error)
+      return { data: [] }
     }
-    // params가 객체인 경우 (예: { user: userId }) 필터링된 댓글 조회
-    return apiClient.get('/comments/', { params })
+  },
+
+  // 코스 댓글 관련
+  getCourseComments(courseId) {
+    // 특정 코스의 댓글 조회
+    return apiClient.get(`/courses/${courseId}/comments/`)
   },
 
   createCourseComment(courseId, data) {
@@ -282,6 +340,10 @@ export default {
 
   getCurrentUser() {
     return apiClient.get('/auth/me/')
+  },
+
+  updateProfile(data) {
+    return apiClient.patch('/auth/me/', data)
   },
 
   // AI endpoints

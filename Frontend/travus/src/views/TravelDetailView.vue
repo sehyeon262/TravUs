@@ -399,6 +399,9 @@
         </div>
       </div>
     </div>
+
+    <!-- Footer -->
+    <FooterSection />
   </div>
 </template>
 
@@ -407,6 +410,7 @@ import { ref, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import NavigationBar from '@/components/common/NavigationBar.vue'
+import FooterSection from '@/components/common/FooterSection.vue'
 import api from '@/services/api'
 
 const route = useRoute()
@@ -551,23 +555,18 @@ const scrollToSection = (section) => {
 // AI 설명 생성
 const generateAIDescription = async (travelSpotId) => {
   if (!travelSpotId) {
-    console.log('⚠️ travelSpotId가 없어서 AI 설명을 생성할 수 없습니다.')
     return
   }
 
-  console.log('🤖 AI 설명 생성 시도:', travelSpotId)
   aiDescriptionLoading.value = true
 
   try {
     const response = await api.generateTravelSpotDescription(travelSpotId)
-    console.log('✅ AI 설명 생성 응답:', response.data)
 
     if (response.data.success && response.data.description) {
       // destination.overview 업데이트
       destination.value.overview = response.data.description
-      console.log('✅ AI 설명 적용 완료')
     } else {
-      console.log('⚠️ AI 설명 생성 실패:', response.data.message)
     }
   } catch (error) {
     console.error('❌ AI 설명 생성 실패:', error)
@@ -580,7 +579,6 @@ const generateAIDescription = async (travelSpotId) => {
 // 같은 지역 추천 여행지 가져오기
 const fetchRecommendations = async (areaCode, currentContentId) => {
   try {
-    console.log('📍 같은 지역 추천 여행지 조회:', areaCode)
 
     // 같은 지역의 관광지 가져오기
     const response = await api.getTravelSpots({
@@ -613,7 +611,6 @@ const fetchRecommendations = async (areaCode, currentContentId) => {
         firstimage2: item.thumbnail_url
       }))
 
-      console.log(`✅ ${recommendations.value.length}개 추천 여행지 로드 완료`)
     }
   } catch (error) {
     console.error('❌ 추천 여행지 로드 실패:', error)
@@ -680,11 +677,9 @@ const fetchDestinationDetail = async () => {
     isLoading.value = true
     error.value = null
     const contentId = route.params.id
-    console.log('📍 DB에서 content_id로 여행지 조회:', contentId)
 
     // DB에서 content_id로 여행지 조회
     const response = await api.getTravelSpotByContentId(contentId)
-    console.log('✅ DB 응답:', response.data)
 
     const travelSpot = response.data
 
@@ -708,7 +703,6 @@ const fetchDestinationDetail = async () => {
       accessibility: travelSpot.accessibility
     }
 
-    console.log('✅ 여행지 정보 로드 완료:', destination.value.title)
 
     // ==========================================
     // API에서 추가 상세 정보 가져오기 (detailCommon)
@@ -716,7 +710,6 @@ const fetchDestinationDetail = async () => {
     // TODO: API 호출 임시 비활성화 - 나중에 다시 활성화할 것
     /*
     try {
-      console.log('📍 API에서 상세 정보 조회 (detailCommon)...')
       const detailCommonResponse = await api.getTravelSpotDetailCommon(
         contentId,
         travelSpot.content_type_id
@@ -743,7 +736,6 @@ const fetchDestinationDetail = async () => {
             homepage: destination.value.homepage || commonData.homepage
           }
 
-          console.log('✅ API 상세 정보 병합 완료')
         }
       }
     } catch (apiError) {
@@ -769,7 +761,6 @@ const fetchDestinationDetail = async () => {
     // TODO: API 호출 임시 비활성화 - 나중에 다시 활성화할 것
     /*
     try {
-      console.log('📍 API에서 소개 정보 조회 (detailIntro)...')
       const detailIntroResponse = await api.getTravelSpotDetailIntro(
         contentId,
         travelSpot.content_type_id
@@ -783,7 +774,6 @@ const fetchDestinationDetail = async () => {
             : body.items.item
 
           detailIntro.value = introData
-          console.log('✅ API 소개 정보 로드 완료')
         }
       }
     } catch (apiError) {
@@ -805,7 +795,6 @@ const fetchDestinationDetail = async () => {
 
     // AI 설명 생성 (설명이 없거나 너무 짧을 때)
     if (!destination.value.overview || destination.value.overview.trim().length < 20) {
-      console.log('📝 설명이 없거나 부족하여 AI 설명 생성 시작...')
       await generateAIDescription(travelSpot.id)
     }
 
@@ -901,14 +890,11 @@ const copyToClipboard = async () => {
 // 댓글 불러오기
 const loadReviews = async () => {
   if (!destination.value?.id) {
-    console.log('⚠️ destination.id가 없어서 댓글을 불러올 수 없습니다.')
     return
   }
 
   try {
-    console.log('📝 댓글 불러오기 시도:', destination.value.id)
     const response = await api.getReviews(destination.value.id)
-    console.log('✅ 댓글 응답:', response.data)
 
     // 응답이 배열인지 확인
     if (Array.isArray(response.data)) {
@@ -921,7 +907,6 @@ const loadReviews = async () => {
       reviews.value = []
     }
 
-    console.log(`✅ ${reviews.value.length}개 댓글 로드 완료`)
 
     // 댓글이 있으면 AI 요약 로드
     if (reviews.value.length > 0) {
@@ -936,22 +921,17 @@ const loadReviews = async () => {
 // AI 요약 불러오기
 const loadAISummary = async () => {
   if (!destination.value?.id) {
-    console.log('⚠️ destination.id가 없어서 AI 요약을 불러올 수 없습니다.')
     return
   }
 
-  console.log('🤖 AI 요약 불러오기 시도:', destination.value.id)
   aiSummaryLoading.value = true
   try {
     const response = await api.getReviewSummary(destination.value.id)
-    console.log('✅ AI 요약 응답:', response.data)
 
     // 실제 댓글이 있을 때만 요약 표시
     if (response.data && response.data.review_count > 0 && response.data.summary) {
       aiSummary.value = response.data.summary
-      console.log('✅ AI 요약 설정 완료')
     } else {
-      console.log('⚠️ 댓글이 없거나 요약이 없습니다:', response.data)
       aiSummary.value = ''
     }
   } catch (error) {
@@ -977,11 +957,6 @@ const submitReview = async () => {
   }
 
   try {
-    console.log('📝 댓글 작성 시도:', {
-      travel_spot_id: destination.value.id,
-      content: newReview.value.content
-    })
-
     await api.createReview({
       travel_spot: destination.value.id,
       content: newReview.value.content
@@ -1086,11 +1061,9 @@ const formatReviewDate = (dateString) => {
 const checkLoginStatus = async () => {
   try {
     const token = localStorage.getItem('access_token')
-    console.log('🔐 토큰 확인:', token ? '있음' : '없음')
 
     if (token) {
       const response = await api.getCurrentUser()
-      console.log('✅ 로그인 상태 확인 성공:', response.data)
 
       // authStore에 사용자 정보 저장
       authStore.setUser(response.data)
@@ -1098,7 +1071,6 @@ const checkLoginStatus = async () => {
 
       isLoggedIn.value = true
     } else {
-      console.log('⚠️ 토큰 없음 - 로그아웃 상태')
       isLoggedIn.value = false
     }
   } catch (error) {
@@ -1118,7 +1090,6 @@ const checkBookmarkStatus = async () => {
   try {
     const response = await api.checkBookmark(destination.value.id)
     isBookmarked.value = response.data.bookmarked
-    console.log('🔖 북마크 상태:', isBookmarked.value)
   } catch (error) {
     console.error('❌ 북마크 상태 확인 실패:', error)
     isBookmarked.value = false
@@ -1156,7 +1127,6 @@ const toggleBookmark = async () => {
 // route.params.id가 변경될 때마다 데이터 다시 가져오기
 watch(() => route.params.id, (newId, oldId) => {
   if (newId && newId !== oldId) {
-    console.log('Route changed from', oldId, 'to', newId)
     // 기존 데이터 초기화
     destination.value = null
     detailIntro.value = null

@@ -232,9 +232,12 @@ Day 3: travel → travel → restaurant → travel → travel → restaurant
 **선택 가능한 숙박 목록 ({len(simplified_accommodations)}개):**
 {json.dumps(simplified_accommodations, ensure_ascii=False, indent=2)}
 
-위 목록에서만 선택하여 여행 코스를 구성해주세요.
-각 장소의 id를 그대로 사용하고, 순서 패턴을 정확히 따라주세요.
-**반드시 위도/경도를 고려하여 가까운 장소들끼리 선택해주세요.**
+**중요한 규칙:**
+1. **반드시** 위 목록에 있는 장소들의 id만 사용해주세요. 목록에 없는 id를 사용하면 안 됩니다.
+2. 각 장소의 id 값을 정확히 복사하여 사용하세요.
+3. 순서 패턴을 정확히 따라주세요.
+4. 위도(latitude)/경도(longitude)를 고려하여 가까운 장소들끼리 선택해주세요.
+5. 같은 지역({region}) 내의 장소들만 선택해주세요.
 """
 
     def _validate_response(self, response, duration, travel_spots):
