@@ -1,0 +1,265 @@
+﻿source,content_id,field,source_key_present,source_raw_description,db_value,db_raw_description,api_raw_description,screen_status,screen_description,raw_preserved
+synthetic regression,validation-available,parking,False,,null,,,정보 없음,,True
+synthetic regression,validation-available,public_transport,True,대중교통 이용 가능,true,대중교통 이용 가능,대중교통 이용 가능,이용 가능,대중교통 이용 가능,True
+synthetic regression,validation-available,route,False,,null,,,정보 없음,,True
+synthetic regression,validation-available,ticket_office,False,,null,,,정보 없음,,True
+synthetic regression,validation-available,promotion,False,,null,,,정보 없음,,True
+synthetic regression,validation-available,wheelchair,True,휠체어 대여 가능,true,휠체어 대여 가능,휠체어 대여 가능,이용 가능,휠체어 대여 가능,True
+synthetic regression,validation-available,exit,False,,null,,,정보 없음,,True
+synthetic regression,validation-available,elevator,False,,null,,,정보 없음,,True
+synthetic regression,validation-available,restroom,False,,null,,,정보 없음,,True
+synthetic regression,validation-available,auditorium,False,,null,,,정보 없음,,True
+synthetic regression,validation-available,room,True,장애인 객실 있음,true,장애인 객실 있음,장애인 객실 있음,이용 가능,장애인 객실 있음,True
+synthetic regression,validation-available,braile_block,False,,null,,,정보 없음,,True
+synthetic regression,validation-available,help_dog,False,,null,,,정보 없음,,True
+synthetic regression,validation-available,guide_human,False,,null,,,정보 없음,,True
+synthetic regression,validation-available,audio_guide,True,음성안내 제공,true,음성안내 제공,음성안내 제공,이용 가능,음성안내 제공,True
+synthetic regression,validation-available,big_print,False,,null,,,정보 없음,,True
+synthetic regression,validation-available,braile_promotion,False,,null,,,정보 없음,,True
+synthetic regression,validation-available,guide_system,False,,null,,,정보 없음,,True
+synthetic regression,validation-available,sign_guide,False,,null,,,정보 없음,,True
+synthetic regression,validation-available,video_guide,False,,null,,,정보 없음,,True
+synthetic regression,validation-available,hearing_room,True,청각장애 객실 없음,false,청각장애 객실 없음,청각장애 객실 없음,이용 불가,청각장애 객실 없음,True
+synthetic regression,validation-available,stroller,False,,null,,,정보 없음,,True
+synthetic regression,validation-available,lactation_room,False,,null,,,정보 없음,,True
+synthetic regression,validation-available,baby_spare_chair,False,,null,,,정보 없음,,True
+synthetic regression,validation-unavailable,parking,True,주차 불가,false,주차 불가,주차 불가,이용 불가,주차 불가,True
+synthetic regression,validation-unavailable,public_transport,False,,null,,,정보 없음,,True
+synthetic regression,validation-unavailable,route,False,,null,,,정보 없음,,True
+synthetic regression,validation-unavailable,ticket_office,False,,null,,,정보 없음,,True
+synthetic regression,validation-unavailable,promotion,False,,null,,,정보 없음,,True
+synthetic regression,validation-unavailable,wheelchair,True,대여 불가,false,대여 불가,대여 불가,이용 불가,대여 불가,True
+synthetic regression,validation-unavailable,exit,False,,null,,,정보 없음,,True
+synthetic regression,validation-unavailable,elevator,False,,null,,,정보 없음,,True
+synthetic regression,validation-unavailable,restroom,False,,null,,,정보 없음,,True
+synthetic regression,validation-unavailable,auditorium,False,,null,,,정보 없음,,True
+synthetic regression,validation-unavailable,room,False,,null,,,정보 없음,,True
+synthetic regression,validation-unavailable,braile_block,False,,null,,,정보 없음,,True
+synthetic regression,validation-unavailable,help_dog,False,,null,,,정보 없음,,True
+synthetic regression,validation-unavailable,guide_human,False,,null,,,정보 없음,,True
+synthetic regression,validation-unavailable,audio_guide,True,음성안내 미제공,false,음성안내 미제공,음성안내 미제공,이용 불가,음성안내 미제공,True
+synthetic regression,validation-unavailable,big_print,False,,null,,,정보 없음,,True
+synthetic regression,validation-unavailable,braile_promotion,False,,null,,,정보 없음,,True
+synthetic regression,validation-unavailable,guide_system,False,,null,,,정보 없음,,True
+synthetic regression,validation-unavailable,sign_guide,False,,null,,,정보 없음,,True
+synthetic regression,validation-unavailable,video_guide,False,,null,,,정보 없음,,True
+synthetic regression,validation-unavailable,hearing_room,False,,null,,,정보 없음,,True
+synthetic regression,validation-unavailable,stroller,False,,null,,,정보 없음,,True
+synthetic regression,validation-unavailable,lactation_room,False,,null,,,정보 없음,,True
+synthetic regression,validation-unavailable,baby_spare_chair,False,,null,,,정보 없음,,True
+synthetic regression,validation-empty,parking,False,,null,,,정보 없음,,True
+synthetic regression,validation-empty,public_transport,False,,null,,,정보 없음,,True
+synthetic regression,validation-empty,route,False,,null,,,정보 없음,,True
+synthetic regression,validation-empty,ticket_office,False,,null,,,정보 없음,,True
+synthetic regression,validation-empty,promotion,False,,null,,,정보 없음,,True
+synthetic regression,validation-empty,wheelchair,True,,null,,,정보 없음,,True
+synthetic regression,validation-empty,exit,False,,null,,,정보 없음,,True
+synthetic regression,validation-empty,elevator,False,,null,,,정보 없음,,True
+synthetic regression,validation-empty,restroom,False,,null,,,정보 없음,,True
+synthetic regression,validation-empty,auditorium,False,,null,,,정보 없음,,True
+synthetic regression,validation-empty,room,False,,null,,,정보 없음,,True
+synthetic regression,validation-empty,braile_block,False,,null,,,정보 없음,,True
+synthetic regression,validation-empty,help_dog,False,,null,,,정보 없음,,True
+synthetic regression,validation-empty,guide_human,False,,null,,,정보 없음,,True
+synthetic regression,validation-empty,audio_guide,False,,null,,,정보 없음,,True
+synthetic regression,validation-empty,big_print,False,,null,,,정보 없음,,True
+synthetic regression,validation-empty,braile_promotion,False,,null,,,정보 없음,,True
+synthetic regression,validation-empty,guide_system,False,,null,,,정보 없음,,True
+synthetic regression,validation-empty,sign_guide,False,,null,,,정보 없음,,True
+synthetic regression,validation-empty,video_guide,False,,null,,,정보 없음,,True
+synthetic regression,validation-empty,hearing_room,False,,null,,,정보 없음,,True
+synthetic regression,validation-empty,stroller,False,,null,,,정보 없음,,True
+synthetic regression,validation-empty,lactation_room,False,,null,,,정보 없음,,True
+synthetic regression,validation-empty,baby_spare_chair,False,,null,,,정보 없음,,True
+synthetic regression,validation-null,parking,False,,null,,,정보 없음,,True
+synthetic regression,validation-null,public_transport,False,,null,,,정보 없음,,True
+synthetic regression,validation-null,route,False,,null,,,정보 없음,,True
+synthetic regression,validation-null,ticket_office,False,,null,,,정보 없음,,True
+synthetic regression,validation-null,promotion,False,,null,,,정보 없음,,True
+synthetic regression,validation-null,wheelchair,True,,null,,,정보 없음,,True
+synthetic regression,validation-null,exit,False,,null,,,정보 없음,,True
+synthetic regression,validation-null,elevator,False,,null,,,정보 없음,,True
+synthetic regression,validation-null,restroom,False,,null,,,정보 없음,,True
+synthetic regression,validation-null,auditorium,False,,null,,,정보 없음,,True
+synthetic regression,validation-null,room,False,,null,,,정보 없음,,True
+synthetic regression,validation-null,braile_block,False,,null,,,정보 없음,,True
+synthetic regression,validation-null,help_dog,False,,null,,,정보 없음,,True
+synthetic regression,validation-null,guide_human,False,,null,,,정보 없음,,True
+synthetic regression,validation-null,audio_guide,False,,null,,,정보 없음,,True
+synthetic regression,validation-null,big_print,False,,null,,,정보 없음,,True
+synthetic regression,validation-null,braile_promotion,False,,null,,,정보 없음,,True
+synthetic regression,validation-null,guide_system,False,,null,,,정보 없음,,True
+synthetic regression,validation-null,sign_guide,False,,null,,,정보 없음,,True
+synthetic regression,validation-null,video_guide,False,,null,,,정보 없음,,True
+synthetic regression,validation-null,hearing_room,False,,null,,,정보 없음,,True
+synthetic regression,validation-null,stroller,False,,null,,,정보 없음,,True
+synthetic regression,validation-null,lactation_room,False,,null,,,정보 없음,,True
+synthetic regression,validation-null,baby_spare_chair,False,,null,,,정보 없음,,True
+synthetic regression,validation-missing,parking,False,,null,,,정보 없음,,True
+synthetic regression,validation-missing,public_transport,False,,null,,,정보 없음,,True
+synthetic regression,validation-missing,route,False,,null,,,정보 없음,,True
+synthetic regression,validation-missing,ticket_office,False,,null,,,정보 없음,,True
+synthetic regression,validation-missing,promotion,False,,null,,,정보 없음,,True
+synthetic regression,validation-missing,wheelchair,False,,null,,,정보 없음,,True
+synthetic regression,validation-missing,exit,False,,null,,,정보 없음,,True
+synthetic regression,validation-missing,elevator,False,,null,,,정보 없음,,True
+synthetic regression,validation-missing,restroom,False,,null,,,정보 없음,,True
+synthetic regression,validation-missing,auditorium,False,,null,,,정보 없음,,True
+synthetic regression,validation-missing,room,False,,null,,,정보 없음,,True
+synthetic regression,validation-missing,braile_block,False,,null,,,정보 없음,,True
+synthetic regression,validation-missing,help_dog,False,,null,,,정보 없음,,True
+synthetic regression,validation-missing,guide_human,False,,null,,,정보 없음,,True
+synthetic regression,validation-missing,audio_guide,False,,null,,,정보 없음,,True
+synthetic regression,validation-missing,big_print,False,,null,,,정보 없음,,True
+synthetic regression,validation-missing,braile_promotion,False,,null,,,정보 없음,,True
+synthetic regression,validation-missing,guide_system,False,,null,,,정보 없음,,True
+synthetic regression,validation-missing,sign_guide,False,,null,,,정보 없음,,True
+synthetic regression,validation-missing,video_guide,False,,null,,,정보 없음,,True
+synthetic regression,validation-missing,hearing_room,False,,null,,,정보 없음,,True
+synthetic regression,validation-missing,stroller,False,,null,,,정보 없음,,True
+synthetic regression,validation-missing,lactation_room,False,,null,,,정보 없음,,True
+synthetic regression,validation-missing,baby_spare_chair,False,,null,,,정보 없음,,True
+synthetic regression,validation-conditional,parking,False,,null,,,정보 없음,,True
+synthetic regression,validation-conditional,public_transport,False,,null,,,정보 없음,,True
+synthetic regression,validation-conditional,route,False,,null,,,정보 없음,,True
+synthetic regression,validation-conditional,ticket_office,False,,null,,,정보 없음,,True
+synthetic regression,validation-conditional,promotion,False,,null,,,정보 없음,,True
+synthetic regression,validation-conditional,wheelchair,True,사전 예약 시 대여 가능,null,사전 예약 시 대여 가능,사전 예약 시 대여 가능,확인 필요,사전 예약 시 대여 가능,True
+synthetic regression,validation-conditional,exit,False,,null,,,정보 없음,,True
+synthetic regression,validation-conditional,elevator,False,,null,,,정보 없음,,True
+synthetic regression,validation-conditional,restroom,False,,null,,,정보 없음,,True
+synthetic regression,validation-conditional,auditorium,False,,null,,,정보 없음,,True
+synthetic regression,validation-conditional,room,False,,null,,,정보 없음,,True
+synthetic regression,validation-conditional,braile_block,False,,null,,,정보 없음,,True
+synthetic regression,validation-conditional,help_dog,False,,null,,,정보 없음,,True
+synthetic regression,validation-conditional,guide_human,False,,null,,,정보 없음,,True
+synthetic regression,validation-conditional,audio_guide,False,,null,,,정보 없음,,True
+synthetic regression,validation-conditional,big_print,False,,null,,,정보 없음,,True
+synthetic regression,validation-conditional,braile_promotion,False,,null,,,정보 없음,,True
+synthetic regression,validation-conditional,guide_system,False,,null,,,정보 없음,,True
+synthetic regression,validation-conditional,sign_guide,False,,null,,,정보 없음,,True
+synthetic regression,validation-conditional,video_guide,False,,null,,,정보 없음,,True
+synthetic regression,validation-conditional,hearing_room,False,,null,,,정보 없음,,True
+synthetic regression,validation-conditional,stroller,False,,null,,,정보 없음,,True
+synthetic regression,validation-conditional,lactation_room,False,,null,,,정보 없음,,True
+synthetic regression,validation-conditional,baby_spare_chair,False,,null,,,정보 없음,,True
+synthetic regression,validation-mixed,parking,False,,null,,,정보 없음,,True
+synthetic regression,validation-mixed,public_transport,False,,null,,,정보 없음,,True
+synthetic regression,validation-mixed,route,False,,null,,,정보 없음,,True
+synthetic regression,validation-mixed,ticket_office,False,,null,,,정보 없음,,True
+synthetic regression,validation-mixed,promotion,False,,null,,,정보 없음,,True
+synthetic regression,validation-mixed,wheelchair,True,"일부 구간 이용 가능, 계단 구간은 이용 불가",null,"일부 구간 이용 가능, 계단 구간은 이용 불가","일부 구간 이용 가능, 계단 구간은 이용 불가",확인 필요,"일부 구간 이용 가능, 계단 구간은 이용 불가",True
+synthetic regression,validation-mixed,exit,False,,null,,,정보 없음,,True
+synthetic regression,validation-mixed,elevator,False,,null,,,정보 없음,,True
+synthetic regression,validation-mixed,restroom,False,,null,,,정보 없음,,True
+synthetic regression,validation-mixed,auditorium,False,,null,,,정보 없음,,True
+synthetic regression,validation-mixed,room,False,,null,,,정보 없음,,True
+synthetic regression,validation-mixed,braile_block,False,,null,,,정보 없음,,True
+synthetic regression,validation-mixed,help_dog,False,,null,,,정보 없음,,True
+synthetic regression,validation-mixed,guide_human,False,,null,,,정보 없음,,True
+synthetic regression,validation-mixed,audio_guide,False,,null,,,정보 없음,,True
+synthetic regression,validation-mixed,big_print,False,,null,,,정보 없음,,True
+synthetic regression,validation-mixed,braile_promotion,False,,null,,,정보 없음,,True
+synthetic regression,validation-mixed,guide_system,False,,null,,,정보 없음,,True
+synthetic regression,validation-mixed,sign_guide,False,,null,,,정보 없음,,True
+synthetic regression,validation-mixed,video_guide,False,,null,,,정보 없음,,True
+synthetic regression,validation-mixed,hearing_room,False,,null,,,정보 없음,,True
+synthetic regression,validation-mixed,stroller,False,,null,,,정보 없음,,True
+synthetic regression,validation-mixed,lactation_room,False,,null,,,정보 없음,,True
+synthetic regression,validation-mixed,baby_spare_chair,False,,null,,,정보 없음,,True
+synthetic regression,validation-negated,parking,False,,null,,,정보 없음,,True
+synthetic regression,validation-negated,public_transport,False,,null,,,정보 없음,,True
+synthetic regression,validation-negated,route,False,,null,,,정보 없음,,True
+synthetic regression,validation-negated,ticket_office,False,,null,,,정보 없음,,True
+synthetic regression,validation-negated,promotion,False,,null,,,정보 없음,,True
+synthetic regression,validation-negated,wheelchair,True,대여 가능하지 않음,false,대여 가능하지 않음,대여 가능하지 않음,이용 불가,대여 가능하지 않음,True
+synthetic regression,validation-negated,exit,False,,null,,,정보 없음,,True
+synthetic regression,validation-negated,elevator,False,,null,,,정보 없음,,True
+synthetic regression,validation-negated,restroom,False,,null,,,정보 없음,,True
+synthetic regression,validation-negated,auditorium,False,,null,,,정보 없음,,True
+synthetic regression,validation-negated,room,False,,null,,,정보 없음,,True
+synthetic regression,validation-negated,braile_block,False,,null,,,정보 없음,,True
+synthetic regression,validation-negated,help_dog,False,,null,,,정보 없음,,True
+synthetic regression,validation-negated,guide_human,False,,null,,,정보 없음,,True
+synthetic regression,validation-negated,audio_guide,False,,null,,,정보 없음,,True
+synthetic regression,validation-negated,big_print,False,,null,,,정보 없음,,True
+synthetic regression,validation-negated,braile_promotion,False,,null,,,정보 없음,,True
+synthetic regression,validation-negated,guide_system,False,,null,,,정보 없음,,True
+synthetic regression,validation-negated,sign_guide,False,,null,,,정보 없음,,True
+synthetic regression,validation-negated,video_guide,False,,null,,,정보 없음,,True
+synthetic regression,validation-negated,hearing_room,False,,null,,,정보 없음,,True
+synthetic regression,validation-negated,stroller,False,,null,,,정보 없음,,True
+synthetic regression,validation-negated,lactation_room,False,,null,,,정보 없음,,True
+synthetic regression,validation-negated,baby_spare_chair,False,,null,,,정보 없음,,True
+synthetic regression,validation-inquiry,parking,False,,null,,,정보 없음,,True
+synthetic regression,validation-inquiry,public_transport,False,,null,,,정보 없음,,True
+synthetic regression,validation-inquiry,route,False,,null,,,정보 없음,,True
+synthetic regression,validation-inquiry,ticket_office,False,,null,,,정보 없음,,True
+synthetic regression,validation-inquiry,promotion,False,,null,,,정보 없음,,True
+synthetic regression,validation-inquiry,wheelchair,True,매표소에 문의,null,매표소에 문의,매표소에 문의,확인 필요,매표소에 문의,True
+synthetic regression,validation-inquiry,exit,False,,null,,,정보 없음,,True
+synthetic regression,validation-inquiry,elevator,False,,null,,,정보 없음,,True
+synthetic regression,validation-inquiry,restroom,False,,null,,,정보 없음,,True
+synthetic regression,validation-inquiry,auditorium,False,,null,,,정보 없음,,True
+synthetic regression,validation-inquiry,room,False,,null,,,정보 없음,,True
+synthetic regression,validation-inquiry,braile_block,False,,null,,,정보 없음,,True
+synthetic regression,validation-inquiry,help_dog,False,,null,,,정보 없음,,True
+synthetic regression,validation-inquiry,guide_human,False,,null,,,정보 없음,,True
+synthetic regression,validation-inquiry,audio_guide,False,,null,,,정보 없음,,True
+synthetic regression,validation-inquiry,big_print,False,,null,,,정보 없음,,True
+synthetic regression,validation-inquiry,braile_promotion,False,,null,,,정보 없음,,True
+synthetic regression,validation-inquiry,guide_system,False,,null,,,정보 없음,,True
+synthetic regression,validation-inquiry,sign_guide,False,,null,,,정보 없음,,True
+synthetic regression,validation-inquiry,video_guide,False,,null,,,정보 없음,,True
+synthetic regression,validation-inquiry,hearing_room,False,,null,,,정보 없음,,True
+synthetic regression,validation-inquiry,stroller,False,,null,,,정보 없음,,True
+synthetic regression,validation-inquiry,lactation_room,False,,null,,,정보 없음,,True
+synthetic regression,validation-inquiry,baby_spare_chair,False,,null,,,정보 없음,,True
+live TourAPI replay,126273,parking,True,장애인 전용 주차구역 있음(가계리 경로당 근처 대형주차장)_무장애 편의시설,true,장애인 전용 주차구역 있음(가계리 경로당 근처 대형주차장)_무장애 편의시설,장애인 전용 주차구역 있음(가계리 경로당 근처 대형주차장)_무장애 편의시설,이용 가능,장애인 전용 주차구역 있음(가계리 경로당 근처 대형주차장)_무장애 편의시설,True
+live TourAPI replay,126273,public_transport,True,,null,,,정보 없음,,True
+live TourAPI replay,126273,route,True,해변가에 접근 가능한 경사로가 있으나 모래로 된 길임,null,해변가에 접근 가능한 경사로가 있으나 모래로 된 길임,해변가에 접근 가능한 경사로가 있으나 모래로 된 길임,확인 필요,해변가에 접근 가능한 경사로가 있으나 모래로 된 길임,True
+live TourAPI replay,126273,ticket_office,True,,null,,,정보 없음,,True
+live TourAPI replay,126273,promotion,True,,null,,,정보 없음,,True
+live TourAPI replay,126273,wheelchair,True,,null,,,정보 없음,,True
+live TourAPI replay,126273,exit,True,,null,,,정보 없음,,True
+live TourAPI replay,126273,elevator,True,,null,,,정보 없음,,True
+live TourAPI replay,126273,restroom,True,"장애인 전용 화장실 있음(주차장 안 아름다운가계 화장실,경사로설치)",true,"장애인 전용 화장실 있음(주차장 안 아름다운가계 화장실,경사로설치)","장애인 전용 화장실 있음(주차장 안 아름다운가계 화장실,경사로설치)",이용 가능,"장애인 전용 화장실 있음(주차장 안 아름다운가계 화장실,경사로설치)",True
+live TourAPI replay,126273,auditorium,True,,null,,,정보 없음,,True
+live TourAPI replay,126273,room,True,,null,,,정보 없음,,True
+live TourAPI replay,126273,braile_block,True,점자블록 있음(아름다운가계 화장실 앞)_시각장애인 편의시설,true,점자블록 있음(아름다운가계 화장실 앞)_시각장애인 편의시설,점자블록 있음(아름다운가계 화장실 앞)_시각장애인 편의시설,이용 가능,점자블록 있음(아름다운가계 화장실 앞)_시각장애인 편의시설,True
+live TourAPI replay,126273,help_dog,True,,null,,,정보 없음,,True
+live TourAPI replay,126273,guide_human,True,,null,,,정보 없음,,True
+live TourAPI replay,126273,audio_guide,True,,null,,,정보 없음,,True
+live TourAPI replay,126273,big_print,True,,null,,,정보 없음,,True
+live TourAPI replay,126273,braile_promotion,True,,null,,,정보 없음,,True
+live TourAPI replay,126273,guide_system,True,,null,,,정보 없음,,True
+live TourAPI replay,126273,sign_guide,True,,null,,,정보 없음,,True
+live TourAPI replay,126273,video_guide,True,,null,,,정보 없음,,True
+live TourAPI replay,126273,hearing_room,True,,null,,,정보 없음,,True
+live TourAPI replay,126273,stroller,True,,null,,,정보 없음,,True
+live TourAPI replay,126273,lactation_room,True,,null,,,정보 없음,,True
+live TourAPI replay,126273,baby_spare_chair,True,,null,,,정보 없음,,True
+live TourAPI replay,1433504,parking,True,장애인 주차장 있음(2)_무장애 편의시설,true,장애인 주차장 있음(2)_무장애 편의시설,장애인 주차장 있음(2)_무장애 편의시설,이용 가능,장애인 주차장 있음(2)_무장애 편의시설,True
+live TourAPI replay,1433504,public_transport,True,,null,,,정보 없음,,True
+live TourAPI replay,1433504,route,True,출입구까지 턱이 없어 휠체어 접근 가능함,true,출입구까지 턱이 없어 휠체어 접근 가능함,출입구까지 턱이 없어 휠체어 접근 가능함,이용 가능,출입구까지 턱이 없어 휠체어 접근 가능함,True
+live TourAPI replay,1433504,ticket_office,True,,null,,,정보 없음,,True
+live TourAPI replay,1433504,promotion,True,,null,,,정보 없음,,True
+live TourAPI replay,1433504,wheelchair,True,,null,,,정보 없음,,True
+live TourAPI replay,1433504,exit,True,주출입구는 턱이 없어 휠체어 접근 가능함,true,주출입구는 턱이 없어 휠체어 접근 가능함,주출입구는 턱이 없어 휠체어 접근 가능함,이용 가능,주출입구는 턱이 없어 휠체어 접근 가능함,True
+live TourAPI replay,1433504,elevator,True,,null,,,정보 없음,,True
+live TourAPI replay,1433504,restroom,True,,null,,,정보 없음,,True
+live TourAPI replay,1433504,auditorium,True,,null,,,정보 없음,,True
+live TourAPI replay,1433504,room,True,,null,,,정보 없음,,True
+live TourAPI replay,1433504,braile_block,True,,null,,,정보 없음,,True
+live TourAPI replay,1433504,help_dog,True,,null,,,정보 없음,,True
+live TourAPI replay,1433504,guide_human,True,,null,,,정보 없음,,True
+live TourAPI replay,1433504,audio_guide,True,,null,,,정보 없음,,True
+live TourAPI replay,1433504,big_print,True,,null,,,정보 없음,,True
+live TourAPI replay,1433504,braile_promotion,True,,null,,,정보 없음,,True
+live TourAPI replay,1433504,guide_system,True,,null,,,정보 없음,,True
+live TourAPI replay,1433504,sign_guide,True,,null,,,정보 없음,,True
+live TourAPI replay,1433504,video_guide,True,,null,,,정보 없음,,True
+live TourAPI replay,1433504,hearing_room,True,,null,,,정보 없음,,True
+live TourAPI replay,1433504,stroller,True,,null,,,정보 없음,,True
+live TourAPI replay,1433504,lactation_room,True,,null,,,정보 없음,,True
+live TourAPI replay,1433504,baby_spare_chair,True,,null,,,정보 없음,,True

@@ -1,0 +1,7 @@
+{
+  "component": "AccessibilityPanel.vue",
+  "pages": 11,
+  "fieldsPerPage": 24,
+  "assertions": "status attributes and source descriptions rendered; markup escaped",
+  "result": "passed"
+}

@@ -1,0 +1,41 @@
+{
+  "forward": {
+    "wheelchair": false,
+    "audio_guide": null,
+    "retained_legacy_flags": {
+      "parking": false,
+      "public_transport": false,
+      "route": false,
+      "ticket_office": null,
+      "promotion": null,
+      "wheelchair": true,
+      "exit": false,
+      "elevator": false,
+      "restroom": false,
+      "auditorium": null,
+      "room": null,
+      "braile_block": false,
+      "help_dog": false,
+      "guide_human": null,
+      "audio_guide": true,
+      "big_print": null,
+      "braile_promotion": null,
+      "guide_system": false,
+      "sign_guide": false,
+      "video_guide": false,
+      "hearing_room": false,
+      "stroller": false,
+      "lactation_room": false,
+      "baby_spare_chair": null
+    },
+    "source_payload": {
+      "_provenance": "legacy_info_fields",
+      "wheelchair": "대여 불가"
+    }
+  },
+  "rollback": {
+    "wheelchair": true,
+    "audio_guide": true
+  },
+  "forward_again": "passed"
+}

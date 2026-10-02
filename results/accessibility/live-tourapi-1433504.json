@@ -1,0 +1,55 @@
+{
+  "provenance": "live TourAPI read-only response",
+  "retrieved_at": "2026-09-08T15:05:33.888372+00:00",
+  "endpoint": "https://apis.data.go.kr/B551011/KorWithService2/detailWithTour2",
+  "content_id": "1433504",
+  "http_status": 200,
+  "response": {
+    "response": {
+      "header": {
+        "resultCode": "0000",
+        "resultMsg": "OK"
+      },
+      "body": {
+        "items": {
+          "item": [
+            {
+              "contentid": "1433504",
+              "parking": "장애인 주차장 있음(2)_무장애 편의시설",
+              "publictransport": "",
+              "route": "출입구까지 턱이 없어 휠체어 접근 가능함",
+              "ticketoffice": "",
+              "promotion": "",
+              "wheelchair": "",
+              "exit": "주출입구는 턱이 없어 휠체어 접근 가능함",
+              "elevator": "",
+              "restroom": "",
+              "auditorium": "",
+              "room": "",
+              "handicapetc": "",
+              "braileblock": "",
+              "helpdog": "",
+              "guidehuman": "",
+              "audioguide": "",
+              "bigprint": "",
+              "brailepromotion": "",
+              "guidesystem": "",
+              "blindhandicapetc": "",
+              "signguide": "",
+              "videoguide": "",
+              "hearingroom": "",
+              "hearinghandicapetc": "",
+              "stroller": "",
+              "lactationroom": "",
+              "babysparechair": "",
+              "infantsfamilyetc": ""
+            }
+          ]
+        },
+        "numOfRows": 1,
+        "pageNo": 1,
+        "totalCount": 1
+      }
+    }
+  }
+}

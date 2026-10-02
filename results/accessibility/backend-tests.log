@@ -1,0 +1,20 @@
+test_all_24_fields_survive_database_reread_and_serialization (__main__.AccessibilityChecks.test_all_24_fields_survive_database_reread_and_serialization) ... ok
+test_condition_preserved_and_labeled_for_review (__main__.AccessibilityChecks.test_condition_preserved_and_labeled_for_review) ... ok
+test_empty_response_preserves_previous_data (__main__.AccessibilityChecks.test_empty_response_preserves_previous_data) ... ok
+test_error_envelope_does_not_overwrite (__main__.AccessibilityChecks.test_error_envelope_does_not_overwrite) ... ok
+test_live_tourapi_notes_do_not_erase_conditions (__main__.AccessibilityChecks.test_live_tourapi_notes_do_not_erase_conditions) ... ok
+test_malformed_field_does_not_partially_update (__main__.AccessibilityChecks.test_malformed_field_does_not_partially_update) ... ok
+test_nine_regressions_persist_expected_values (__main__.AccessibilityChecks.test_nine_regressions_persist_expected_values) ... ok
+test_real_detail_endpoint_returns_three_states (__main__.AccessibilityChecks.test_real_detail_endpoint_returns_three_states) ... ok
+test_repeated_sync_updates_without_duplicate_or_stale_flag (__main__.AccessibilityChecks.test_repeated_sync_updates_without_duplicate_or_stale_flag) ... ok
+test_request_failure_log_does_not_include_credentials (__main__.AccessibilityChecks.test_request_failure_log_does_not_include_credentials) ... ok
+test_single_object_response_supported (__main__.AccessibilityChecks.test_single_object_response_supported) ... ok
+test_text_markup_does_not_change_raw_evidence (__main__.AccessibilityChecks.test_text_markup_does_not_change_raw_evidence) ... ok
+test_unknown_not_in_available_filter (__main__.AccessibilityChecks.test_unknown_not_in_available_filter) ... ok
+test_unrecognized_and_negated_prose_not_available (__main__.AccessibilityChecks.test_unrecognized_and_negated_prose_not_available) ... ok
+test_wrong_content_id_does_not_overwrite (__main__.AccessibilityChecks.test_wrong_content_id_does_not_overwrite) ... ok
+
+----------------------------------------------------------------------
+Ran 15 tests in 0.599s
+
+OK

@@ -1,0 +1,55 @@
+{
+  "provenance": "live TourAPI read-only response",
+  "retrieved_at": "2026-09-08T15:05:33.756957+00:00",
+  "endpoint": "https://apis.data.go.kr/B551011/KorWithService2/detailWithTour2",
+  "content_id": "126273",
+  "http_status": 200,
+  "response": {
+    "response": {
+      "header": {
+        "resultCode": "0000",
+        "resultMsg": "OK"
+      },
+      "body": {
+        "items": {
+          "item": [
+            {
+              "contentid": "126273",
+              "parking": "장애인 전용 주차구역 있음(가계리 경로당 근처 대형주차장)_무장애 편의시설",
+              "publictransport": "",
+              "route": "해변가에 접근 가능한 경사로가 있으나 모래로 된 길임",
+              "ticketoffice": "",
+              "promotion": "",
+              "wheelchair": "",
+              "exit": "",
+              "elevator": "",
+              "restroom": "장애인 전용 화장실 있음(주차장 안 아름다운가계 화장실,경사로설치)",
+              "auditorium": "",
+              "room": "",
+              "handicapetc": "",
+              "braileblock": "점자블록 있음(아름다운가계 화장실 앞)_시각장애인 편의시설",
+              "helpdog": "",
+              "guidehuman": "",
+              "audioguide": "",
+              "bigprint": "",
+              "brailepromotion": "",
+              "guidesystem": "",
+              "blindhandicapetc": "",
+              "signguide": "",
+              "videoguide": "",
+              "hearingroom": "",
+              "hearinghandicapetc": "",
+              "stroller": "",
+              "lactationroom": "",
+              "babysparechair": "",
+              "infantsfamilyetc": ""
+            }
+          ]
+        },
+        "numOfRows": 1,
+        "pageNo": 1,
+        "totalCount": 1
+      }
+    }
+  }
+}
