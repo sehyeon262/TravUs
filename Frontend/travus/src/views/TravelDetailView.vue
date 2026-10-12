@@ -172,21 +172,8 @@
             <div id="kakao-map" class="kakao-map"></div>
           </div>
 
-          <!-- 무장애 정보 -->
-          <div class="accessibility-section">
-            <h2 class="section-title">무장애 관광 정보</h2>
-            <div class="accessibility-icons-grid">
-              <div
-                class="accessibility-icon-item"
-                :class="{ 'active': isAccessibilityActive(icon.field) }"
-                v-for="icon in accessibilityIcons"
-                :key="icon.id"
-              >
-                <img :src="icon.image" :alt="icon.label" class="accessibility-icon-img">
-                <div class="accessibility-tooltip">{{ icon.label }}</div>
-              </div>
-            </div>
-          </div>
+          <!-- 원문과 세 가지 판정 상태를 함께 표시 -->
+          <AccessibilityPanel :accessibility="destination.accessibility" />
 
           <!-- 추천 여행지 -->
           <div id="section-recommendations" class="recommendations-section" v-if="recommendations.length > 0">
@@ -412,6 +399,7 @@ import { useAuthStore } from '@/stores/auth'
 import NavigationBar from '@/components/common/NavigationBar.vue'
 import FooterSection from '@/components/common/FooterSection.vue'
 import api from '@/services/api'
+import AccessibilityPanel from '@/components/travel/AccessibilityPanel.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -424,35 +412,6 @@ const detailIntro = ref(null)
 const detailInfo = ref(null)
 const images = ref([])
 const recommendations = ref([])
-const accessibilityInfo = ref({
-  wheelchair: '정보 준비 중입니다',
-  parking: '정보 준비 중입니다',
-  restroom: '정보 준비 중입니다',
-  visual: '정보 준비 중입니다'
-})
-
-// 무장애 아이콘 데이터 (DB 필드와 매핑)
-const accessibilityIcons = ref([
-  { id: 1, image: new URL('@/assets/icon1.png', import.meta.url).href, label: '장애인 화장실', field: 'restroom' },
-  { id: 2, image: new URL('@/assets/icon2.png', import.meta.url).href, label: '장애인용 엘리베이터', field: 'elevator' },
-  { id: 3, image: new URL('@/assets/icon3.png', import.meta.url).href, label: '장애인 전용 주차구역', field: 'parking' },
-  { id: 4, image: new URL('@/assets/icon4.png', import.meta.url).href, label: '주출입구 단차없음', field: 'exit' },
-  { id: 5, image: new URL('@/assets/icon5.png', import.meta.url).href, label: '지하철 접근가능', field: 'public_transport' },
-  { id: 6, image: new URL('@/assets/icon6.png', import.meta.url).href, label: '저상버스 접근가능', field: 'route' },
-  { id: 7, image: new URL('@/assets/icon7.png', import.meta.url).href, label: '휠체어 대여', field: 'wheelchair' },
-  { id: 8, image: new URL('@/assets/icon8.png', import.meta.url).href, label: '시각장애인 편의서비스', field: 'audio_guide' },
-  { id: 9, image: new URL('@/assets/icon9.png', import.meta.url).href, label: '청각장애인 편의서비스', field: 'hearing_room' },
-  { id: 10, image: new URL('@/assets/icon10.png', import.meta.url).href, label: '수유실', field: 'lactation_room' },
-  { id: 11, image: new URL('@/assets/icon11.png', import.meta.url).href, label: '장애인 객실', field: 'hearing_room' },
-  { id: 12, image: new URL('@/assets/icon12.png', import.meta.url).href, label: '유모차 대여', field: 'stroller' }
-])
-
-// 무장애 시설 활성화 체크 함수
-const isAccessibilityActive = (field) => {
-  if (!destination.value?.accessibility) return false
-  return destination.value.accessibility[field] === true
-}
-
 // 공유 모달 관련
 const showShareModal = ref(false)
 const copySuccess = ref(false)
@@ -744,16 +703,7 @@ const fetchDestinationDetail = async () => {
     }
     */
 
-    // 무장애 정보 매핑 (DB에서 가져온 데이터 사용)
-    if (travelSpot.accessibility) {
-      const acc = travelSpot.accessibility
-      accessibilityInfo.value = {
-        wheelchair: acc.wheelchair ? '휠체어 이용 가능' : acc.wheelchair_info || '정보 없음',
-        parking: acc.parking ? '장애인 주차장 있음' : acc.parking_info || '정보 없음',
-        restroom: acc.restroom ? '장애인 화장실 있음' : acc.restroom_info || '정보 없음',
-        visual: acc.audio_guide ? '음성 안내 제공' : '정보 없음'
-      }
-    }
+
 
     // ==========================================
     // API에서 소개 정보 가져오기 (detailIntro)
@@ -1500,95 +1450,6 @@ watch(() => route.params.id, (newId, oldId) => {
   line-height: 1.8;
   color: #1e3a8a;
   margin: 0;
-}
-
-/* 무장애 정보 */
-.accessibility-section {
-  margin-bottom: 3rem;
-}
-
-.accessibility-icons-grid {
-  display: grid;
-  grid-template-columns: repeat(12, 1fr);
-  gap: 1rem;
-  padding: 2rem;
-  background: #f9fafb;
-  border-radius: 12px;
-}
-
-.accessibility-icon-item {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0.75rem;
-  background: white;
-  border: 2px solid #e5e7eb;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.accessibility-icon-item.active {
-  background: #374151;
-  border-color: #374151;
-}
-
-.accessibility-icon-item.active .accessibility-icon-img {
-  filter: brightness(0) invert(1);
-}
-
-.accessibility-icon-item:hover {
-  background: #374151;
-  border-color: #374151;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(55, 65, 81, 0.3);
-}
-
-.accessibility-icon-item:hover .accessibility-icon-img {
-  filter: brightness(0) invert(1);
-}
-
-.accessibility-icon-item:hover .accessibility-tooltip {
-  opacity: 1;
-  visibility: visible;
-  transform: translate(-50%, -10px);
-}
-
-.accessibility-icon-img {
-  width: 100%;
-  height: auto;
-  display: block;
-  transition: filter 0.3s ease;
-}
-
-.accessibility-tooltip {
-  position: absolute;
-  bottom: 100%;
-  left: 50%;
-  transform: translate(-50%, 0);
-  padding: 0.5rem 0.75rem;
-  background: #1f2937;
-  color: white;
-  font-size: 0.75rem;
-  white-space: nowrap;
-  border-radius: 6px;
-  opacity: 0;
-  visibility: hidden;
-  transition: all 0.3s ease;
-  pointer-events: none;
-  z-index: 10;
-  margin-bottom: 8px;
-}
-
-.accessibility-tooltip::after {
-  content: '';
-  position: absolute;
-  top: 100%;
-  left: 50%;
-  transform: translateX(-50%);
-  border: 5px solid transparent;
-  border-top-color: #1f2937;
 }
 
 /* 추천 여행지 */
