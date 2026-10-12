@@ -66,8 +66,8 @@ class TourAPIService:
 
             response = requests.get(url, params=request_params, timeout=10)
 
-            # 최종 요청 URL 로깅
-            logger.info(f"Final URL: {response.url}")
+            # 인증키가 포함된 전체 요청 URL은 기록하지 않는다.
+            logger.info("TourAPI request completed: endpoint=%s", endpoint)
             logger.info(f"Response Status: {response.status_code}")
 
             # 404는 별도 처리 (raise하지 않고 None 반환)
@@ -87,8 +87,7 @@ class TourAPIService:
             return json_response
 
         except requests.exceptions.RequestException as e:
-            logger.error(f"TourAPI Request Failed: {e}")
-            logger.error(f"Failed URL: {url}")
+            logger.error("TourAPI request failed: endpoint=%s error_type=%s", endpoint, type(e).__name__)
             return None
         except ValueError as e:  # JSON Decode Error
             logger.error(f"TourAPI JSON Decode Failed: {e}")
