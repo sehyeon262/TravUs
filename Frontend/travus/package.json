@@ -9,6 +9,8 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "test:accessibility": "node --test tests/accessibility.test.js",
+    "validate:accessibility": "node tests/render-accessibility.mjs",
     "preview": "vite preview",
     "lint": "eslint . --fix --cache",
     "format": "prettier --write --experimental-cli src/"

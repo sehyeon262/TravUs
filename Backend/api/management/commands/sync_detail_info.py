@@ -1,6 +1,8 @@
 import time
 from django.core.management.base import BaseCommand
 from django.utils import timezone
+from django.db import transaction
+from api.accessibility import normalized_values
 from api.models import TravelSpot, AccessibilityInfo
 from api.services.tour_api import tour_api_service
 
@@ -209,66 +211,28 @@ class Command(BaseCommand):
                 with_tour_result = tour_api_service.get_detail_with_tour(travel_spot.content_id)
 
                 if with_tour_result and 'response' in with_tour_result:
+                    header = with_tour_result['response'].get('header', {})
+                    if header.get('resultCode') != '0000':
+                        raise ValueError('TourAPI accessibility response was not successful')
                     with_tour_body = with_tour_result['response'].get('body', {})
                     with_tour_items = with_tour_body.get('items', {})
 
                     if isinstance(with_tour_items, dict) and 'item' in with_tour_items:
                         with_tour_list = with_tour_items['item']
+                        if isinstance(with_tour_list, dict):
+                            with_tour_list = [with_tour_list]
                         if with_tour_list and len(with_tour_list) > 0:
                             with_tour = with_tour_list[0]
 
-                            # AccessibilityInfo 생성 또는 업데이트
-                            accessibility, created = AccessibilityInfo.objects.get_or_create(
-                                travel_spot=travel_spot
-                            )
+                            if str(with_tour.get('contentid', travel_spot.content_id)) != travel_spot.content_id:
+                                raise ValueError('TourAPI accessibility content ID does not match the requested place')
 
-                            # detailWithTour2는 텍스트 설명을 반환 (Y/N이 아님)
-                            # Boolean 필드: 텍스트가 있으면 True, 없으면 False
-                            # 텍스트 필드: 설명 그대로 저장
-
-                            # === 지체장애 (Physical Disability) ===
-                            def set_field(api_key, bool_field, info_field=None):
-                                text = with_tour.get(api_key, '')
-                                setattr(accessibility, bool_field, bool(text))
-                                if info_field:
-                                    setattr(accessibility, info_field, text)
-
-                            set_field('parking', 'parking', 'parking_info')
-                            set_field('publictransport', 'public_transport', 'public_transport_info')
-                            set_field('route', 'route', 'route_info')
-                            set_field('ticketoffice', 'ticket_office', 'ticket_office_info')
-                            set_field('promotion', 'promotion', 'promotion_info')
-                            set_field('wheelchair', 'wheelchair', 'wheelchair_info')
-                            set_field('exit', 'exit', 'exit_info')
-                            set_field('elevator', 'elevator', 'elevator_info')
-                            set_field('restroom', 'restroom', 'restroom_info')
-                            set_field('auditorium', 'auditorium', 'auditorium_info')
-                            set_field('room', 'room', 'room_info')
-                            accessibility.handicap_etc = with_tour.get('handicapetc', '')
-
-                            # === 시각장애 (Visual Disability) ===
-                            set_field('braileblock', 'braile_block', 'braile_block_info')
-                            set_field('helpdog', 'help_dog', 'help_dog_info')
-                            set_field('guidehuman', 'guide_human', 'guide_human_info')
-                            set_field('audioguide', 'audio_guide', 'audio_guide_info')
-                            set_field('bigprint', 'big_print', 'big_print_info')
-                            set_field('brailepromotion', 'braile_promotion', 'braile_promotion_info')
-                            set_field('guidesystem', 'guide_system', 'guide_system_info')
-                            accessibility.blind_handicap_etc = with_tour.get('blindhandicapetc', '')
-
-                            # === 청각장애 (Hearing Disability) ===
-                            set_field('signguide', 'sign_guide', 'sign_guide_info')
-                            set_field('videoguide', 'video_guide', 'video_guide_info')
-                            set_field('hearingroom', 'hearing_room', 'hearing_room_info')
-                            accessibility.hearing_handicap_etc = with_tour.get('hearinghandicapetc', '')
-
-                            # === 영유아가족 (Families with Infants) ===
-                            set_field('stroller', 'stroller', 'stroller_info')
-                            set_field('lactationroom', 'lactation_room', 'lactation_room_info')
-                            set_field('babysparechair', 'baby_spare_chair', 'baby_spare_chair_info')
-                            accessibility.infants_family_etc = with_tour.get('infantsfamilyetc', '')
-
-                            accessibility.save()
+                            # Parse every field before writing; malformed responses preserve existing data.
+                            values = normalized_values(with_tour)
+                            with transaction.atomic():
+                                accessibility, created = AccessibilityInfo.objects.update_or_create(
+                                    travel_spot=travel_spot, defaults=values
+                                )
 
                             action = '생성' if created else '업데이트'
                             self.stdout.write(self.style.SUCCESS(f'  [완료] 무장애 정보 {action} 완료'))

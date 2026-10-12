@@ -1,3 +1,4 @@
+from .accessibility import ACCESSIBILITY_FIELDS, EXTRA_TEXT_FIELDS, facility_details
 from rest_framework import serializers
 from .models import (
     TravelSpotCategory, TravelSpot, AccessibilityInfo,
@@ -15,16 +16,16 @@ class TravelSpotCategorySerializer(serializers.ModelSerializer):
 
 
 class AccessibilityInfoSerializer(serializers.ModelSerializer):
+    facilities = serializers.SerializerMethodField()
+
     class Meta:
         model = AccessibilityInfo
-        fields = [
-            'id', 'parking', 'route', 'public_transport', 'restroom',
-            'wheelchair', 'exit', 'elevator', 'audio_guide',
-            'parking_info', 'route_info', 'restroom_info',
-            'wheelchair_info', 'exit_info', 'elevator_info',
-            'braile_block', 'help_dog', 'guide_system',
-            'stroller', 'lactation_room'
-        ]
+        fields = ['id', 'normalization_version', 'facilities'] + [
+            name for _, field, _ in ACCESSIBILITY_FIELDS for name in (field, field + '_info')
+        ] + list(EXTRA_TEXT_FIELDS.values())
+
+    def get_facilities(self, obj):
+        return facility_details(obj)
 
 
 class TravelSpotListSerializer(serializers.ModelSerializer):

@@ -1,0 +1,72 @@
+{
+  "provenance": "Synthetic regression inputs authored for validation; not live TourAPI responses.",
+  "cases": [
+    {
+      "id": "validation-available",
+      "input": {
+        "wheelchair": "휠체어 대여 가능",
+        "audioguide": "음성안내 제공",
+        "publictransport": "대중교통 이용 가능",
+        "room": "장애인 객실 있음",
+        "hearingroom": "청각장애 객실 없음"
+      },
+      "expected": true
+    },
+    {
+      "id": "validation-unavailable",
+      "input": {
+        "wheelchair": "대여 불가",
+        "audioguide": "음성안내 미제공",
+        "parking": "주차 불가"
+      },
+      "expected": false
+    },
+    {
+      "id": "validation-empty",
+      "input": {
+        "wheelchair": ""
+      },
+      "expected": null
+    },
+    {
+      "id": "validation-null",
+      "input": {
+        "wheelchair": null
+      },
+      "expected": null
+    },
+    {
+      "id": "validation-missing",
+      "input": {},
+      "expected": null
+    },
+    {
+      "id": "validation-conditional",
+      "input": {
+        "wheelchair": "사전 예약 시 대여 가능"
+      },
+      "expected": null
+    },
+    {
+      "id": "validation-mixed",
+      "input": {
+        "wheelchair": "일부 구간 이용 가능, 계단 구간은 이용 불가"
+      },
+      "expected": null
+    },
+    {
+      "id": "validation-negated",
+      "input": {
+        "wheelchair": "대여 가능하지 않음"
+      },
+      "expected": false
+    },
+    {
+      "id": "validation-inquiry",
+      "input": {
+        "wheelchair": "매표소에 문의"
+      },
+      "expected": null
+    }
+  ]
+}
